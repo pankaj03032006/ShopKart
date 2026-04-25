@@ -1,0 +1,693 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(145deg, #e9f0ef 0%, #dde5e4 100%);
+        font-family: 'Inter', sans-serif;
+        padding: 2rem 1rem;
+        min-height: 100vh;
+    }
+
+    .address-card {
+        max-width: 720px;
+        width: 100%;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 32px;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #ffffff;
+        padding: 1.75rem 2rem 0.5rem 2rem;
+        border-bottom: 1px solid #eef2f0;
+    }
+
+    .card-header h2 {
+        font-size: 1.85rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #1e3b2f, #2a5a46);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        letter-spacing: -0.3px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .card-header h2 i {
+        background: none;
+        color: #2a5a46;
+        font-size: 1.8rem;
+    }
+
+    .sub-message {
+        font-size: 0.9rem;
+        color: #5b6e6a;
+        margin-top: 8px;
+        font-weight: 400;
+        border-left: 3px solid #86b3a2;
+        padding-left: 12px;
+    }
+
+    .form-container {
+        padding: 1.5rem 2rem 2rem 2rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.2rem 1.5rem;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .input-group label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        letter-spacing: 0.3px;
+        color: #2c4b3e;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .input-group label i {
+        font-size: 0.85rem;
+        color: #6f9e8c;
+        width: 18px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        font-family: 'Inter', monospace;
+        border: 1.5px solid #e2e8e6;
+        border-radius: 20px;
+        background-color: #fefefe;
+        transition: all 0.2s ease;
+        outline: none;
+        color: #1f2f2a;
+        font-weight: 500;
+    }
+
+    .form-control:focus {
+        border-color: #2a7f62;
+        box-shadow: 0 0 0 4px rgba(42, 127, 98, 0.15);
+        background-color: #ffffff;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 85px;
+        line-height: 1.4;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 2rem;
+        border-top: 1px solid #edf2f0;
+        padding-top: 1.8rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        border: none;
+        background: none;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-save {
+        background: #1e4f3e;
+        color: white;
+        box-shadow: 0 4px 8px rgba(30, 79, 62, 0.2);
+    }
+
+    .btn-save:hover {
+        background: #0f3a2c;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px -6px rgba(30, 79, 62, 0.4);
+    }
+
+    .btn-cancel {
+        background: #f4f7f6;
+        color: #3a5e52;
+        border: 1px solid #d9e2df;
+    }
+
+    .btn-cancel:hover {
+        background: #e9efec;
+        border-color: #bdd3cb;
+        transform: translateY(-1px);
+    }
+
+    .address-feedback {
+        margin-top: 2rem;
+        background: #f6fbf9;
+        border-radius: 24px;
+        padding: 1.2rem 1.5rem;
+        border: 1px solid #ddebe6;
+    }
+
+    .feedback-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #236653;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .saved-address-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        border-left: 5px solid #2a7f62;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #1c2f2a;
+        position: relative;
+    }
+
+    .default-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ffd700;
+        color: #0a3d2e;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .saved-address-card p {
+        margin: 6px 0;
+    }
+
+    .highlight {
+        font-weight: 700;
+        color: #144e3d;
+    }
+
+    .address-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+        justify-content: flex-end;
+    }
+
+    .edit-address-btn, .delete-address-btn, .set-default-btn {
+        background: none;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .edit-address-btn {
+        color: #2a7f62;
+    }
+
+    .edit-address-btn:hover {
+        background: #e8f5f0;
+    }
+
+    .delete-address-btn {
+        color: #c16a5e;
+    }
+
+    .delete-address-btn:hover {
+        background: #fee2e2;
+    }
+
+    .set-default-btn {
+        color: #ff9800;
+    }
+
+    .set-default-btn:hover {
+        background: #fff3e0;
+    }
+
+    .empty-state {
+        color: #8aa89e;
+        font-style: italic;
+        padding: 12px 0 4px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .toast-msg {
+        margin-top: 12px;
+        background: #e1f3ed;
+        padding: 8px 14px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        color: #1b5e48;
+        display: inline-block;
+    }
+
+    @media (max-width: 600px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .full-width {
+            grid-column: span 1;
+        }
+        .card-header h2 {
+            font-size: 1.5rem;
+        }
+        .form-container {
+            padding: 1.2rem 1.5rem;
+        }
+        .action-buttons {
+            justify-content: stretch;
+        }
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="address-card">
+    <div class="card-header">
+        <h2>
+            <i class="fas fa-map-pin"></i> 
+            Delivery Address
+        </h2>
+        <div class="sub-message">
+            <i class="fas fa-plus-circle" style="font-size: 0.75rem;"></i> Add a new shipping location
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form id="addressForm" onsubmit="return false;">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" name="name" id="fullName" required class="form-control" placeholder="Recipient full name">
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-phone-alt"></i> Phone Number</label>
+                    <input type="tel" name="phone" id="phone" required class="form-control" placeholder="10-digit mobile number">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" name="email" id="email" required class="form-control" placeholder="email@example.com">
+                </div>
+
+                <div class="input-group full-width">
+                    <label><i class="fas fa-location-dot"></i> Street Address</label>
+                    <textarea name="address" id="address" required class="form-control" placeholder="House/Flat No., Building, Street"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-city"></i> City</label>
+                    <input type="text" name="city" id="city" required class="form-control" placeholder="City">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-landmark"></i> State</label>
+                    <input type="text" name="state" id="state" required class="form-control" placeholder="State">
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-mail-bulk"></i> Pincode</label>
+                    <input type="text" name="pincode" id="pincode" required class="form-control" placeholder="Pincode" maxlength="6">
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" id="cancelBtn" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" id="saveBtn" class="btn btn-save">
+                    <i class="fas fa-save"></i> Save Address
+                </button>
+            </div>
+        </form>
+
+        <div id="addressListContainer" class="address-feedback">
+            <div class="feedback-title">
+                <i class="fas fa-bookmark"></i> 
+                <span>📍 Saved Addresses</span>
+            </div>
+            <div id="savedAddressesWrapper">
+                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading addresses...</div>
+            </div>
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let editMode = false;
+    let currentEditId = null;
+
+    // Get CSRF token
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Load addresses from database
+    function loadAddresses() {
+        fetch('/get-addresses/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderAddressList(data.addresses);
+            } else {
+                showTemporaryMessage('Error loading addresses', '#c16a5e');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showTemporaryMessage('Error loading addresses', '#c16a5e');
+        });
+    }
+
+    // Render address list
+    function renderAddressList(addresses) {
+        const wrapper = document.getElementById('savedAddressesWrapper');
+        if (!wrapper) return;
+
+        if (addresses.length === 0) {
+            wrapper.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i> No addresses yet. Use the form above to add a new address.</div>`;
+            return;
+        }
+
+        const listHtml = addresses.map(addr => `
+            <div class="saved-address-card fade-up" data-id="${addr.id}">
+                ${addr.is_default ? '<span class="default-badge"><i class="fas fa-check-circle"></i> Default</span>' : ''}
+                <p><span class="highlight"><i class="fas fa-user-circle"></i> ${escapeHtml(addr.name)}</span>   📞 ${escapeHtml(addr.phone)}</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${escapeHtml(addr.address)}, ${escapeHtml(addr.city)}, ${escapeHtml(addr.state)} - ${escapeHtml(addr.pincode)}</p>
+                <div class="address-actions">
+                    ${!addr.is_default ? `<button class="set-default-btn" data-id="${addr.id}"><i class="fas fa-star"></i> Set as Default</button>` : ''}
+                    <button class="edit-address-btn" data-id="${addr.id}"><i class="fas fa-pen"></i> Edit</button>
+                    <button class="delete-address-btn" data-id="${addr.id}"><i class="fas fa-trash-alt"></i> Remove</button>
+                </div>
+            </div>
+        `).join('');
+        
+        wrapper.innerHTML = listHtml;
+
+        // Attach event listeners
+        document.querySelectorAll('.delete-address-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                deleteAddress(id);
+            });
+        });
+
+        document.querySelectorAll('.edit-address-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                loadAddressForEditing(id);
+            });
+        });
+
+        document.querySelectorAll('.set-default-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                setDefaultAddress(id);
+            });
+        });
+    }
+
+    // Set default address
+    function setDefaultAddress(id) {
+        fetch(`/set-default-address/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showTemporaryMessage('Default address updated!', '#236653');
+                loadAddresses();
+            } else {
+                showTemporaryMessage(data.error || 'Error updating default address', '#c16a5e');
+            }
+        });
+    }
+
+    // Delete address
+    function deleteAddress(id) {
+        if (confirm('Are you sure you want to delete this address?')) {
+            fetch(`/delete-address/${id}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showTemporaryMessage('Address removed successfully!', '#236653');
+                    loadAddresses();
+                    if (editMode && currentEditId === id) {
+                        resetForm();
+                        editMode = false;
+                        currentEditId = null;
+                    }
+                } else {
+                    showTemporaryMessage(data.error || 'Error deleting address', '#c16a5e');
+                }
+            });
+        }
+    }
+
+    // Load address for editing
+    function loadAddressForEditing(id) {
+        fetch(`/get-addresses/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const address = data.addresses.find(a => a.id === id);
+                    if (address) {
+                        document.getElementById('fullName').value = address.name;
+                        document.getElementById('phone').value = address.phone;
+                        document.getElementById('email').value = address.email || '';
+                        document.getElementById('address').value = address.address;
+                        document.getElementById('city').value = address.city;
+                        document.getElementById('state').value = address.state;
+                        document.getElementById('pincode').value = address.pincode;
+                        
+                        editMode = true;
+                        currentEditId = address.id;
+                        const saveBtn = document.getElementById('saveBtn');
+                        saveBtn.innerHTML = '<i class="fas fa-pen-fancy"></i> Update Address';
+                        saveBtn.style.background = "#2c6b58";
+                        showTemporaryMessage('✏️ Editing address — click Update to save changes', '#2a5a46');
+                        document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+    }
+
+    // Reset form
+    function resetForm() {
+        document.getElementById('addressForm').reset();
+        editMode = false;
+        currentEditId = null;
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Address';
+        saveBtn.style.background = "#1e4f3e";
+        document.querySelectorAll('.form-control').forEach(el => el.style.borderColor = '');
+    }
+
+    // Show temporary message
+    let msgTimeout;
+    function showTemporaryMessage(message, colorHint = '#236653') {
+        const statusMsgDiv = document.getElementById('statusMessage');
+        if (msgTimeout) clearTimeout(msgTimeout);
+        statusMsgDiv.innerHTML = `<div class="toast-msg" style="background:#eef3f0; border-left:3px solid ${colorHint};">${message}</div>`;
+        msgTimeout = setTimeout(() => {
+            if (statusMsgDiv) statusMsgDiv.innerHTML = '';
+        }, 3000);
+    }
+
+    // Validate form
+    function validateForm() {
+        const name = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const state = document.getElementById('state').value.trim();
+        const pincode = document.getElementById('pincode').value.trim();
+        
+        if (!name || !phone || !email || !address || !city || !state || !pincode) {
+            showTemporaryMessage('⚠️ All fields are required', '#c16a5e');
+            return false;
+        }
+        if (!email.includes('@') || !email.includes('.')) {
+            showTemporaryMessage('📧 Please enter a valid email address', '#c16a5e');
+            return false;
+        }
+        if (phone.length < 10) {
+            showTemporaryMessage('📞 Please enter a valid 10-digit phone number', '#c16a5e');
+            return false;
+        }
+        if (pincode.length !== 6) {
+            showTemporaryMessage('📮 Please enter a valid 6-digit pincode', '#c16a5e');
+            return false;
+        }
+        return true;
+    }
+
+    // Save or update address
+    function saveOrUpdateAddress() {
+        if (!validateForm()) return false;
+
+        const formData = {
+            name: document.getElementById('fullName').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            address: document.getElementById('address').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            state: document.getElementById('state').value.trim(),
+            pincode: document.getElementById('pincode').value.trim()
+        };
+
+        const url = editMode ? `/edit-address/${currentEditId}/` : '/add-address/';
+        const successMessage = editMode ? 'Address updated successfully!' : 'New address saved!';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showTemporaryMessage(successMessage, '#1e6b50');
+                resetForm();
+                loadAddresses();
+                editMode = false;
+                currentEditId = null;
+            } else {
+                showTemporaryMessage(data.error || 'Error saving address', '#c16a5e');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showTemporaryMessage('Error saving address', '#c16a5e');
+        });
+    }
+
+    // Cancel button handler
+    function handleCancel() {
+        if (editMode) {
+            resetForm();
+            editMode = false;
+            currentEditId = null;
+            showTemporaryMessage('✖️ Editing cancelled. Form cleared.', '#8c7a6b');
+        } else {
+            resetForm();
+            showTemporaryMessage('🧹 Form cleared. You can add a new address.', '#6f8f82');
+        }
+    }
+
+    // Escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Event listeners
+    document.getElementById('addressForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveOrUpdateAddress();
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        handleCancel();
+    });
+
+    // Phone number validation (only digits, max 10)
+    document.getElementById('phone').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+    });
+
+    // Pincode validation (only digits, max 6)
+    document.getElementById('pincode').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+    });
+
+    // Load addresses on page load
+    loadAddresses();
+</script>
+{% endblock %}

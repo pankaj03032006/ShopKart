@@ -1,0 +1,572 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Order Card */
+    .order-card {
+        background: white;
+        border-radius: 24px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #eef2f6;
+    }
+
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Order Header */
+    .order-header {
+        background: #fafbfc;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eef2f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .order-id {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: #5b6e7c;
+    }
+
+    .order-id i {
+        color: #0a3d2e;
+    }
+
+    .order-date {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        color: #5b6e7c;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.35rem 1rem;
+        border-radius: 40px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-delivered {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .status-pending {
+        background: #fff3e0;
+        color: #ef6c00;
+    }
+
+    .status-processing {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .status-shipped {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-cancelled {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .status-confirmed {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    /* Payment Badge */
+    .payment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.35rem 1rem;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+
+    .payment-online {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .payment-cod {
+        background: #fff3e0;
+        color: #ef6c00;
+    }
+
+    /* Order Body */
+    .order-body {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    /* Book Image */
+    .book-image-wrapper {
+        flex: 0 0 120px;
+    }
+
+    .book-image {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 16px;
+        background: #f8fafc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .book-image-placeholder {
+        width: 100%;
+        height: 160px;
+        background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 2rem;
+    }
+
+    /* Book Details */
+    .book-details {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .book-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1e2a32;
+        margin-bottom: 0.5rem;
+    }
+
+    .book-author {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #5b6e7c;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .book-price {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0a3d2e;
+        margin: 0.5rem 0;
+    }
+
+    /* Order Meta */
+    .order-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed #e2e8f0;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: #4a5b6e;
+    }
+
+    .meta-item i {
+        width: 18px;
+        color: #0a3d2e;
+    }
+
+    /* Action Buttons */
+    .order-actions {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.75rem;
+        min-width: 160px;
+    }
+
+    .btn-cancel {
+        background: white;
+        border: 1.5px solid #e74c3c;
+        color: #e74c3c;
+        padding: 0.6rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+        background: #e74c3c;
+        color: white;
+        transform: scale(0.98);
+    }
+
+    .btn-track {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-track:hover {
+        background: linear-gradient(135deg, #0c4d3a, #0e5e48);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(10, 61, 46, 0.3);
+    }
+
+    .btn-review {
+        background: #e8f5e9;
+        border: 1px solid #a5d6a7;
+        color: #2e7d32;
+        padding: 0.6rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-review:hover {
+        background: #2e7d32;
+        color: white;
+    }
+
+    .reviewed-badge {
+        background: #e2e8f0;
+        color: #5b6e7c;
+        padding: 0.6rem 1.2rem;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* Tracking Info */
+    .tracking-info {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed #e2e8f0;
+        font-size: 0.75rem;
+        color: #5b6e7c;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .tracking-id {
+        font-family: monospace;
+        background: #f8fafc;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    /* Empty State */
+    .empty-orders {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 28px;
+        border: 1px dashed #cbd5e1;
+    }
+
+    .empty-orders i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    .empty-orders h3 {
+        font-size: 1.3rem;
+        color: #1e2a32;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-orders p {
+        color: #5b6e7c;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-shop {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-shop:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(10, 61, 46, 0.3);
+        color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .order-body {
+            flex-direction: column;
+        }
+        .book-image-wrapper {
+            flex: auto;
+            text-align: center;
+        }
+        .book-image, .book-image-placeholder {
+            max-width: 150px;
+            margin: 0 auto;
+        }
+        .order-actions {
+            flex-direction: row;
+            margin-top: 1rem;
+        }
+        .tracking-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="orders-container">
+    <div class="page-header">
+        <h2>
+            <i class="fas fa-shopping-bag"></i> 
+            My Orders
+        </h2>
+    </div>
+
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-header">
+            <div class="order-id">
+                <i class="fas fa-receipt"></i>
+                Order #{{ order.id|stringformat:"08d" }}
+            </div>
+            <div class="order-date">
+                <i class="fas fa-calendar-alt"></i>
+                {{ order.created_at|date:"d M Y, h:i A" }}
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <!-- Payment Method Badge -->
+                {% if order.payment_id %}
+                <span class="payment-badge payment-online">
+                    <i class="fas fa-credit-card"></i> Online Payment
+                </span>
+                {% else %}
+                <span class="payment-badge payment-cod">
+                    <i class="fas fa-money-bill-wave"></i> Cash on Delivery
+                </span>
+                {% endif %}
+                
+                <!-- Status Badge -->
+                {% if order.status == 'Delivered' %}
+                <span class="status-badge status-delivered">
+                    <i class="fas fa-check-circle"></i> Delivered
+                </span>
+                {% elif order.status == 'Processing' %}
+                <span class="status-badge status-processing">
+                    <i class="fas fa-cog fa-spin"></i> Processing
+                </span>
+                {% elif order.status == 'Shipped' %}
+                <span class="status-badge status-shipped">
+                    <i class="fas fa-truck"></i> Shipped
+                </span>
+                {% elif order.status == 'Out for Delivery' %}
+                <span class="status-badge" style="background: #fff3e0; color: #ef6c00;">
+                    <i class="fas fa-truck-fast"></i> Out for Delivery
+                </span>
+                {% elif order.status == 'Cancelled' %}
+                <span class="status-badge status-cancelled">
+                    <i class="fas fa-ban"></i> Cancelled
+                </span>
+                {% elif order.status == 'Confirmed' %}
+                <span class="status-badge status-confirmed">
+                    <i class="fas fa-check-circle"></i> Confirmed
+                </span>
+                {% else %}
+                <span class="status-badge status-pending">
+                    <i class="fas fa-clock"></i> {{ order.status }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="order-body">
+            <!-- Book Image -->
+            <div class="book-image-wrapper">
+                {% if order.book.image and order.book.image.url %}
+                    <img src="{{ order.book.image.url }}" class="book-image" alt="{{ order.book.title }}">
+                {% else %}
+                    <div class="book-image-placeholder">
+                        <i class="fas fa-book"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Book Details -->
+            <div class="book-details">
+                <h3 class="book-title">{{ order.book.title }}</h3>
+                <div class="book-author">
+                    <i class="fas fa-user-pen"></i> 
+                    {{ order.book.author }}
+                </div>
+                <div class="book-price">
+                    ₹{{ order.price }}
+                </div>
+                
+                <div class="order-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-box"></i>
+                        Quantity: {{ order.quantity|default:"1" }}
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-map-pin"></i>
+                        {{ order.address|truncatechars:50 }}
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-phone"></i>
+                        {{ order.phone }}
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-credit-card"></i>
+                        Payment: {% if order.payment_id %}Online{% else %}Cash on Delivery{% endif %}
+                    </div>
+                </div>
+                
+                <!-- Tracking Information -->
+                {% if order.tracking_id %}
+                <div class="tracking-info">
+                    <span><i class="fas fa-barcode"></i> Tracking ID: <span class="tracking-id">{{ order.tracking_id }}</span></span>
+                    {% if order.estimated_delivery %}
+                    <span><i class="fas fa-calendar-check"></i> Est. Delivery: {{ order.estimated_delivery|date:"d M Y" }}</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="order-actions">
+                <!-- Track Order Button (Visible for all orders except Cancelled) -->
+                {% if order.status != 'Cancelled' %}
+                    <a href="{% url 'track_order' order.id %}" class="btn-track">
+                        <i class="fas fa-map-marker-alt"></i> Track Order
+                    </a>
+                {% endif %}
+                
+                <!-- Cancel Button (Only for non-delivered, non-cancelled orders) -->
+                {% if order.status != 'Delivered' and order.status != 'Cancelled' %}
+                    <a href="{% url 'cancel_order' order.id %}" 
+                       class="btn-cancel"
+                       onclick="return confirm('Are you sure you want to cancel this order?')">
+                        <i class="fas fa-times-circle"></i> Cancel Order
+                    </a>
+                {% endif %}
+                
+                <!-- Review Button (Only for delivered orders) -->
+                {% if order.status == 'Delivered' %}
+                    {% if order.is_reviewed %}
+                        <span class="reviewed-badge">
+                            <i class="fas fa-check-circle"></i> Already Reviewed
+                        </span>
+                    {% else %}
+                        <a href="{% url 'books:add_review' order.book.id %}" class="btn-review">
+                            <i class="fas fa-star"></i> Write a Review
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-orders">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>No orders yet</h3>
+        <p>You haven't placed any orders. Start shopping to see your orders here!</p>
+        <a href="{% url 'books:home' %}" class="btn-shop">
+            <i class="fas fa-store"></i> Continue Shopping
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+{% endblock %}

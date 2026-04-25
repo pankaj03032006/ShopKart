@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopcart - Best Online Bookstore</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #1e2a32;
+        }
+
+        /* ========== NAVBAR STYLES ========== */
+        .navbar {
+            background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 8px 40px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+        }
+
+        .top-bar i {
+            margin-right: 5px;
+        }
+
+        .offer-text {
+            animation: pulse 2s infinite;
+            cursor: pointer;
+        }
+
+        .offer-text:hover {
+            color: #ffd700;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .main-nav {
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-link:hover {
+            color: #ffd700;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffd700;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Categories Dropdown */
+        .category-dropdown {
+            position: relative;
+        }
+
+        .category-trigger {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            padding: 5px 0;
+        }
+
+        .category-trigger:hover {
+            color: #ffd700;
+        }
+
+        .category-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            background: white;
+            width: 680px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-menu.show {
+            display: flex;
+        }
+
+        .category-column {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .category-column h4 {
+            color: #0a3d2e;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border-left: 3px solid #0a3d2e;
+            padding-left: 10px;
+        }
+
+        .category-column a {
+            display: block;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 8px 0 8px 10px;
+            transition: all 0.2s;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .category-column a i {
+            width: 20px;
+            margin-right: 8px;
+            color: #0a3d2e;
+        }
+
+        .category-column a:hover {
+            color: #0a3d2e;
+            padding-left: 15px;
+            background: #f0fdf4;
+            transform: translateX(2px);
+        }
+
+        /* Location Dropdown */
+        .location-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .location-trigger {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .location-trigger:hover {
+            color: #ffd700;
+        }
+
+        .location-menu {
+            display: none;
+            position: absolute;
+            background: white;
+            color: #1e2a32;
+            width: 280px;
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .location-menu.show {
+            display: block;
+        }
+
+        .location-menu.dropdown-bottom {
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+        }
+
+        .location-menu.dropdown-top {
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 5px;
+        }
+
+        .location-menu.dropdown-left {
+            left: auto;
+            right: 0;
+        }
+
+        .location-search {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .location-search:focus {
+            border-color: #0a3d2e;
+        }
+
+        .location-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .location-item {
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .location-item:hover {
+            background: #f0fdf4;
+            padding-left: 15px;
+        }
+
+        .location-item i {
+            color: #0a3d2e;
+            width: 20px;
+        }
+
+        .current-location {
+            background: #e8f5e9;
+            font-weight: 500;
+            border-left: 3px solid #ffd700;
+        }
+
+        .use-current-location {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            color: #0a3d2e;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .use-current-location:hover {
+            color: #ffd700;
+        }
+
+        /* Search Bar */
+        .search-form {
+            display: flex;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 40px 0 0 40px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 10px 18px;
+            border: none;
+            background: #ffd700;
+            color: #0a3d2e;
+            border-radius: 0 40px 40px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #ffc107;
+        }
+
+        /* User Section */
+        .user-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-trigger {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .user-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            color: #1e2a32;
+            width: 300px;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .user-menu.show {
+            display: block;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 2rem;
+            color: #0a3d2e;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-avatar:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .avatar-overlay i {
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-email {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            background: #ffd700;
+            color: #0a3d2e;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            margin-top: 8px;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 8px 0;
+        }
+
+        .menu-section {
+            padding: 8px 0;
+        }
+
+        .menu-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #718096;
+            padding: 8px 20px 4px;
+            font-weight: 600;
+        }
+
+        .user-menu a, .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #4a5568;
+            padding: 10px 20px;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .user-menu a:hover, .menu-item:hover {
+            background: #f7fafc;
+            color: #0a3d2e;
+            padding-left: 24px;
+        }
+
+        .user-menu a i, .menu-item i {
+            width: 20px;
+            color: #0a3d2e;
+        }
+
+        .logout-container {
+            padding: 12px 20px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #ffd700;
+            color: #0a3d2e;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        /* MODAL OVERLAY - FIXED */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .profile-modal, .change-password-modal, .feedback-modal, .help-modal {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+            padding: 25px;
+            text-align: center;
+            color: white;
+            position: relative;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .modal-header i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .modal-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .form-group label i {
+            margin-right: 6px;
+            color: #0a3d2e;
+        }
+
+        /* Password Input Wrapper */
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-wrapper .input-icon {
+            position: absolute;
+            left: 16px;
+            color: #94a3b8;
+            font-size: 1rem;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .password-input-wrapper .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            padding-left: 44px;
+            padding-right: 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            background: #fefefe;
+        }
+
+        .password-input-wrapper .form-control:focus {
+            outline: none;
+            border-color: #0a3d2e;
+            box-shadow: 0 0 0 4px rgba(10, 61, 46, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            color: #94a3b8;
+            cursor: pointer;
+            z-index: 1;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: #0a3d2e;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .strength-text {
+            font-size: 0.7rem;
+            margin-top: 5px;
+            color: #5b6e7c;
+        }
+
+        /* Password Requirements */
+        .password-requirements {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+            font-size: 0.7rem;
+        }
+
+        .password-requirements li {
+            margin: 5px 0;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .password-requirements li i {
+            font-size: 0.6rem;
+        }
+
+        .password-requirements li.valid {
+            color: #10b981;
+        }
+
+        .password-requirements li.valid i {
+            color: #10b981;
+        }
+
+        .password-requirements li.invalid {
+            color: #ef4444;
+        }
+
+        .password-requirements li.invalid i {
+            color: #ef4444;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.7rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Regular Input Fields */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 16px;
+            color: #94a3b8;
+            font-size: 1rem;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .input-wrapper .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            padding-left: 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            background: #fefefe;
+        }
+
+        .input-wrapper .form-control:focus {
+            outline: none;
+            border-color: #0a3d2e;
+            box-shadow: 0 0 0 4px rgba(10, 61, 46, 0.1);
+        }
+
+        .btn-save {
+            width: 100%;
+            background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(10, 61, 46, 0.3);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Messages */
+        .messages-container {
+            padding: 15px 40px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+            border-left: 4px solid #ef6c00;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .rating-stars i {
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #ffd700;
+        }
+
+        .rating-stars i:hover {
+            transform: scale(1.1);
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: #0a3d2e;
+            box-shadow: 0 0 0 4px rgba(10, 61, 46, 0.1);
+        }
+
+        /* Help Center Styles */
+        .help-search {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .help-search input {
+            width: 100%;
+            padding: 14px 18px 14px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 48px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .help-search input:focus {
+            border-color: #0a3d2e;
+            box-shadow: 0 0 0 3px rgba(10, 61, 46, 0.1);
+        }
+
+        .help-search i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .quick-action-btn {
+            background: #f8fafc;
+            border: none;
+            padding: 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 600;
+            color: #1e2a32;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-action-btn i {
+            font-size: 1.3rem;
+            color: #0a3d2e;
+        }
+
+        .quick-action-btn:hover {
+            background: #0a3d2e;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn:hover i {
+            color: white;
+        }
+
+        .faq-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e2a32;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .faq-item {
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+            border: 1px solid #eef2f6;
+        }
+
+        .faq-item:hover {
+            border-color: #c8e6d9;
+        }
+
+        .faq-question {
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #1e2a32;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background: #f1f5f9;
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: #0a3d2e;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 1.2rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: #5b6e7c;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 1.2rem 1rem 1.2rem;
+            max-height: 500px;
+        }
+
+        .faq-answer ul, .faq-answer ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .faq-answer li {
+            margin: 5px 0;
+        }
+
+        .contact-support {
+            background: linear-gradient(135deg, #fefce8, #fef9c3);
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            border: 1px solid #fde68a;
+        }
+
+        .contact-support h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e2a32;
+            margin-bottom: 8px;
+        }
+
+        .contact-support p {
+            font-size: 0.8rem;
+            color: #5b6e7c;
+            margin-bottom: 12px;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            padding: 8px 16px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .contact-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .contact-btn.email {
+            background: #0a3d2e;
+            color: white;
+        }
+
+        .contact-btn.chat {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #94a3b8;
+        }
+
+        .profile-pic-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #0a3d2e;
+            margin: 0 auto;
+        }
+
+        .change-photo-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #ffd700;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #0a3d2e;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6d9);
+            margin: 20px 40px;
+            border-radius: 24px;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            color: #0a3d2e;
+            margin-bottom: 15px;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            min-height: calc(100vh - 140px);
+        }
+
+        @media (max-width: 1024px) {
+            .main-nav {
+                flex-direction: column;
+            }
+            .search-form {
+                width: 100%;
+                max-width: 100%;
+            }
+            .category-menu {
+                width: 90vw;
+                left: -100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .nav-menu {
+                justify-content: center;
+            }
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+            .category-menu {
+                width: 320px;
+                left: -80px;
+            }
+            .user-section {
+                width: 100%;
+                justify-content: center;
+            }
+            .user-menu {
+                width: calc(100vw - 20px);
+                right: -80px;
+            }
+            .location-menu {
+                right: 0;
+                left: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="top-bar">
+        <div><i class="fas fa-phone-alt"></i> +91 8969695925</div>
+        <div class="offer-text" onclick="location.href='{% url 'books:home' %}?sale=true'">
+            <i class="fas fa-tag"></i> Get 50% Off on Selected Items | Shop Now <i class="fas fa-arrow-right"></i>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div class="location-dropdown" id="locationDropdown">
+                <div class="location-trigger" onclick="toggleLocationDropdown(event)">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    <span id="selectedLocationText">Select Location</span> 
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="location-menu" id="locationMenu">
+                    <input type="text" class="location-search" id="locationSearch" placeholder="Search city..." onkeyup="filterLocations()">
+                    <div class="location-list" id="locationList">
+                        <div class="location-item" onclick="selectLocation('Mumbai')"><i class="fas fa-city"></i> Mumbai</div>
+                        <div class="location-item" onclick="selectLocation('Delhi')"><i class="fas fa-city"></i> Delhi</div>
+                        <div class="location-item" onclick="selectLocation('Bangalore')"><i class="fas fa-city"></i> Bangalore</div>
+                        <div class="location-item" onclick="selectLocation('Chennai')"><i class="fas fa-city"></i> Chennai</div>
+                        <div class="location-item" onclick="selectLocation('Kolkata')"><i class="fas fa-city"></i> Kolkata</div>
+                        <div class="location-item" onclick="selectLocation('Hyderabad')"><i class="fas fa-city"></i> Hyderabad</div>
+                        <div class="location-item" onclick="selectLocation('Pune')"><i class="fas fa-city"></i> Pune</div>
+                        <div class="location-item" onclick="selectLocation('Ahmedabad')"><i class="fas fa-city"></i> Ahmedabad</div>
+                        <div class="location-item" onclick="selectLocation('Jaipur')"><i class="fas fa-city"></i> Jaipur</div>
+                        <div class="location-item" onclick="selectLocation('Lucknow')"><i class="fas fa-city"></i> Lucknow</div>
+                    </div>
+                    <div class="use-current-location" onclick="useCurrentLocation()">
+                        <i class="fas fa-location-dot"></i> Use my current location
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-nav">
+        <div class="logo">
+            <a href="{% url 'books:home' %}" style="color: white; text-decoration: none;">
+                <i class="fas fa-book-open"></i> Shopcart
+            </a>
+        </div>
+
+        <div class="nav-menu">
+            <div class="category-dropdown">
+                <div class="category-trigger" onclick="toggleCategory(event)">
+                    <i class="fas fa-bars"></i> Categories <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-menu" id="categoryMenu">
+                    <div class="category-column">
+                        <h4>Engineering</h4>
+                        <a onclick="filterByCategory('Engineering')"><i class="fas fa-laptop-code"></i> Engineering</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>School Books</h4>
+                        <a onclick="filterByCategory('School Books')"><i class="fas fa-graduation-cap"></i> School Books</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>Competitive Exams</h4>
+                        <a onclick="filterByCategory('Competitive Exams')"><i class="fas fa-landmark"></i> Competitive Exams</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>Fiction & Literature</h4>
+                        <a onclick="filterByCategory('Fiction')"><i class="fas fa-feather-alt"></i> Fiction</a>
+                        <a onclick="filterByCategory('Non-Fiction')"><i class="fas fa-book"></i> Non-Fiction</a>
+                        <a onclick="filterByCategory('Literature')"><i class="fas fa-feather"></i> Literature</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>Other</h4>
+                        <a onclick="filterByCategory('Academic')"><i class="fas fa-university"></i> Academic</a>
+                        <a onclick="filterByCategory(\'Children\'s Books\')"><i class="fas fa-child"></i> Children's Books</a>
+                        <a onclick="filterByCategory('Others')"><i class="fas fa-ellipsis-h"></i> Others</a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{% url 'books:home' %}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+
+            {% if user.is_authenticated and user.seller_profile %}
+                <a href="{% url 'accounts:seller_dashboard' %}" class="nav-link"><i class="fas fa-store"></i> Seller Dashboard</a>
+            {% else %}
+                <a href="{% url 'books:sell_book' %}" class="nav-link"><i class="fas fa-chalkboard-user"></i> Become Seller</a>
+            {% endif %}
+
+            <a href="{% url 'books:cart' %}" class="nav-link cart-icon">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-badge" id="cartCount">{{ cart_count|default:0 }}</span>
+            </a>
+        </div>
+
+        <form method="GET" action="{% url 'books:home' %}" class="search-form">
+            <input type="text" name="q" placeholder="Search books..." class="search-input" value="{{ request.GET.q|default:'' }}">
+            <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+        </form>
+
+        <div class="user-section">
+            {% if user.is_authenticated %}
+                <div class="user-dropdown">
+                    <div class="user-trigger" onclick="toggleUserDropdown(event)">
+                        <i class="fas fa-user-circle"></i> {{ user.username }}
+                        {% if user.seller_profile %}
+                            <span style="background: #ffd700; color: #0a3d2e; padding: 2px 6px; border-radius: 20px; font-size: 0.7rem; margin-left: 5px;">Seller</span>
+                        {% endif %}
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="user-menu" id="userMenu">
+                        <div class="profile-header">
+                            <div class="profile-avatar" onclick="openProfileModal()">
+                                <i class="fas fa-user-circle"></i>
+                                <div class="avatar-overlay"><i class="fas fa-camera"></i></div>
+                            </div>
+                            <div class="profile-name" id="displayName">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="profile-email">{{ user.email }}</div>
+                            {% if user.seller_profile %}
+                                <div class="profile-badge"><i class="fas fa-store"></i> Seller Pro</div>
+                            {% endif %}
+                        </div>
+                        <div class="menu-section">
+                            <div class="menu-section-title">ACCOUNT</div>
+                            <a onclick="openProfileModal(); return false;"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                            <a href="{% url 'my_orders' %}"><i class="fas fa-box"></i> My Orders</a>
+                            <a href="{% url 'books:saved_addresses' %}"><i class="fas fa-map-pin"></i> Saved Addresses</a>
+                            <a onclick="showChangePassword(); return false;"><i class="fas fa-key"></i> Change Password</a>
+                        </div>
+                        <div class="menu-divider"></div>
+                        <div class="menu-section">
+                            <div class="menu-section-title">SUPPORT</div>
+                            <a onclick="showHelpCenter(); return false;"><i class="fas fa-question-circle"></i> Help Center</a>
+                            <a onclick="showFeedback(); return false;"><i class="fas fa-comment-dots"></i> Send Feedback</a>
+                        </div>
+                        <div class="logout-container">
+                            <form action="{% url 'books:logout' %}" method="POST" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="{% url 'accounts:signup' %}" class="nav-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- Profile Edit Modal -->
+<div class="modal-overlay" id="profileModal">
+    <div class="profile-modal">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeProfileModal()">&times;</span>
+            <div class="profile-pic-wrapper">
+                <div class="profile-pic" id="modalProfilePic"><i class="fas fa-user-circle"></i></div>
+                <div class="change-photo-btn" onclick="document.getElementById('profileImageInput').click()"><i class="fas fa-camera"></i></div>
+                <input type="file" id="profileImageInput" style="display: none;" accept="image/*" onchange="updateProfilePicture(this)">
+            </div>
+            <h3>Edit Profile</h3>
+        </div>
+        <div class="modal-body">
+            <form id="profileForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="fullName" class="form-control" placeholder="Enter your full name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" class="form-control" placeholder="your@email.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="phone" class="form-control" placeholder="+91 1234567890">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Date of Birth</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-calendar input-icon"></i>
+                        <input type="date" id="dob" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-venus-mars"></i> Gender</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-venus-mars input-icon"></i>
+                        <select id="gender" class="form-control">
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn-save" onclick="saveProfile()"><i class="fas fa-save"></i> Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="changePasswordModal">
+    <div class="change-password-modal">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeChangePasswordModal()">&times;</span>
+            <i class="fas fa-key" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <h3>Change Password</h3>
+            <p>Update your password to keep your account secure</p>
+        </div>
+        <div class="modal-body">
+            <form id="changePasswordForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Current Password</label>
+                    <div class="password-input-wrapper">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password" id="currentPassword" class="form-control" placeholder="Enter your current password" required>
+                        <i class="far fa-eye password-toggle" onclick="togglePassword('currentPassword', this)"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> New Password</label>
+                    <div class="password-input-wrapper">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password (min. 8 characters)" required>
+                        <i class="far fa-eye password-toggle" onclick="togglePassword('newPassword', this)"></i>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar"><div class="strength-fill" id="newStrengthFill"></div></div>
+                        <div class="strength-text" id="newStrengthText">Enter a strong password</div>
+                    </div>
+                    <ul class="password-requirements" id="passwordRequirements">
+                        <li id="reqLength" class="invalid"><i class="fas fa-circle"></i> At least 8 characters</li>
+                        <li id="reqUppercase" class="invalid"><i class="fas fa-circle"></i> At least one uppercase letter</li>
+                        <li id="reqLowercase" class="invalid"><i class="fas fa-circle"></i> At least one lowercase letter</li>
+                        <li id="reqNumber" class="invalid"><i class="fas fa-circle"></i> At least one number</li>
+                        <li id="reqSpecial" class="invalid"><i class="fas fa-circle"></i> At least one special character</li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-check-circle"></i> Confirm New Password</label>
+                    <div class="password-input-wrapper">
+                        <i class="fas fa-check-circle input-icon"></i>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your new password" required>
+                        <i class="far fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
+                    </div>
+                    <div id="passwordMatchError" class="error-message" style="display: none;"><i class="fas fa-times-circle"></i> Passwords do not match</div>
+                </div>
+                <button type="submit" class="btn-save" id="changePasswordBtn"><i class="fas fa-save"></i> Update Password</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MESSAGES -->
+<div class="messages-container" id="messagesContainer">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- HERO SECTION -->
+<div class="hero-section">
+    <h1><i class="fas fa-book-reader"></i> Welcome to Shopcart</h1>
+    <p>Discover thousands of books at unbeatable prices. Free delivery on orders above ₹499!</p>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    {% block content %}
+    {% endblock %}
+</div>
+<!-- FEEDBACK MODAL - Add this anywhere before closing body tag -->
+<div class="modal-overlay" id="feedbackModal">
+    <div class="feedback-modal">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeFeedbackModal()">&times;</span>
+            <i class="fas fa-comment-dots" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <h3>Send Feedback</h3>
+            <p>We value your opinion! Help us improve Shopcart.</p>
+        </div>
+        <div class="modal-body">
+            <!-- Rating Stars -->
+            <div class="form-group">
+                <label><i class="fas fa-star"></i> Rate your experience</label>
+                <div class="rating-stars" id="ratingStars">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+                <input type="hidden" id="feedbackRating" value="0">
+            </div>
+            
+            <!-- Feedback Message -->
+            <div class="form-group">
+                <label><i class="fas fa-comment"></i> Your Feedback</label>
+                <textarea class="feedback-textarea" id="feedbackMessage" rows="4" placeholder="Tell us what you love or what we can improve..."></textarea>
+            </div>
+            
+            <!-- Email (Optional) -->
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email (Optional)</label>
+                <div class="input-wrapper" style="position: relative;">
+                    <i class="fas fa-envelope input-icon" style="position: absolute; left: 16px; top: 14px; color: #94a3b8;"></i>
+                    <input type="email" id="feedbackEmail" class="form-control" style="padding-left: 44px; width: 100%; padding: 14px 16px 14px 44px; border: 2px solid #e2e8f0; border-radius: 16px;" placeholder="your@email.com">
+                </div>
+                <small style="font-size: 0.7rem; color: #718096;">We'll only use this to follow up if needed</small>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="button" class="btn-save" id="submitFeedbackBtn">
+                <i class="fas fa-paper-plane"></i> Submit Feedback
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="helpModal">
+    <div class="help-modal">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeHelpModal()">&times;</span>
+            <i class="fas fa-headset"></i>
+            <h3>How can we help?</h3>
+            <p>Find answers to common questions or contact our support team</p>
+        </div>
+        <div class="modal-body">
+            <!-- Search Bar -->
+            <div class="help-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="faqSearch" placeholder="Search for answers..." onkeyup="searchFaqs()">
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="quickAction('order')">
+                    <i class="fas fa-box"></i>
+                    Track Order
+                </button>
+                <button class="quick-action-btn" onclick="quickAction('return')">
+                    <i class="fas fa-undo-alt"></i>
+                    Return/Refund
+                </button>
+                <button class="quick-action-btn" onclick="quickAction('payment')">
+                    <i class="fas fa-credit-card"></i>
+                    Payment Issues
+                </button>
+                <button class="quick-action-btn" onclick="quickAction('account')">
+                    <i class="fas fa-user-circle"></i>
+                    Account Help
+                </button>
+            </div>
+
+            <!-- Frequently Asked Questions -->
+            <div class="faq-section-title">
+                <i class="fas fa-question-circle"></i>
+                Frequently Asked Questions
+            </div>
+
+            <div id="faqContainer">
+                <!-- FAQ 1: Order Tracking -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        How do I track my order?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can track your order in multiple ways:</p>
+                        <ul>
+                            <li><strong>Via Account:</strong> Go to <strong>My Orders → Track Order</strong> for real-time updates</li>
+                            <li><strong>Via Email/SMS:</strong> Once shipped, you'll receive a tracking link via email and SMS</li>
+                            <li><strong>Order Status Flow:</strong> Pending → Processing → Shipped → Out for Delivery → Delivered</li>
+                            <li><strong>Mobile App:</strong> Download our app for push notifications</li>
+                        </ul>
+                        <p style="margin-top: 8px;">📦 <strong>Delivery Time:</strong> Standard delivery takes 5-7 business days. Express delivery takes 2-3 business days.</p>
+                        <p style="margin-top: 5px;">❓ <strong>Still can't find your order?</strong> Contact our support team with your order ID.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2: Return & Refund -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        What is your return & refund policy?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer a <strong>7-day easy return policy</strong> for:</p>
+                        <ul>
+                            <li>✓ Damaged or defective books (torn pages, printing errors)</li>
+                            <li>✓ Incorrect items shipped (wrong book or edition)</li>
+                            <li>✓ Wrong quantity delivered</li>
+                            <li>✓ Missing pages or binding defects</li>
+                        </ul>
+                        <p><strong>Return Process:</strong></p>
+                        <ol>
+                            <li>Go to <strong>My Orders → Return Item</strong></li>
+                            <li>Select reason and upload photos (if applicable)</li>
+                            <li>Our team will verify within 24 hours</li>
+                            <li>Schedule a free pickup or self-ship (reimbursement provided)</li>
+                        </ol>
+                        <p><strong>Refund Timeline:</strong></p>
+                        <ul>
+                            <li>💳 Credit/Debit Card: 5-7 business days</li>
+                            <li>📱 UPI/Net Banking: 3-5 business days</li>
+                            <li>💵 COD: Store credit or bank transfer (7-10 days)</li>
+                            <li>🎁 Gift Card: Instant refund to gift card</li>
+                        </ul>
+                        <p style="margin-top: 8px;">⚠️ <strong>Note:</strong> Books must be unused and in original packaging for return.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3: Delivery Time -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        How long does delivery take?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Delivery Options & Timeframes:</strong></p>
+                        <ul>
+                            <li><strong>🚚 Standard Delivery:</strong> 5-7 business days (Free on orders above ₹499)</li>
+                            <li><strong>⚡ Express Delivery:</strong> 2-3 business days (₹99 extra - available in metro cities)</li>
+                            <li><strong>🏃 Same-Day Delivery:</strong> Order before 12 PM for delivery by 8 PM (Available in: Mumbai, Delhi, Bengaluru, Chennai, Kolkata, Hyderabad, Pune)</li>
+                            <li><strong>🌍 International Shipping:</strong> 10-15 business days (Available for select countries)</li>
+                        </ul>
+                        <p><strong>Tracking Updates:</strong> You'll receive updates at:</p>
+                        <ul>
+                            <li>Order Confirmed (immediate)</li>
+                            <li>Order Processed (within 24 hours)</li>
+                            <li>Shipped with tracking number (1-2 days)</li>
+                            <li>Out for Delivery (day of delivery)</li>
+                            <li>Delivered (confirmation)</li>
+                        </ul>
+                        <p>📞 <strong>Delayed delivery?</strong> Contact us if your order hasn't arrived within the promised timeframe.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4: Free Shipping -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Is there free shipping available?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Free Shipping Policy:</strong></p>
+                        <ul>
+                            <li>✅ <strong>Free Standard Shipping</strong> on all orders above ₹499</li>
+                            <li>📦 <strong>Flat ₹40 Shipping Fee</strong> for orders below ₹499</li>
+                            <li>🚚 <strong>Express Shipping:</strong> ₹99 extra (2-3 days delivery)</li>
+                            <li>🎉 <strong>Festive Offers:</strong> Free shipping on all orders during sale periods</li>
+                            <li>⭐ <strong>Prime Members:</strong> Unlimited free express shipping (Subscribe for ₹499/year)</li>
+                        </ul>
+                        <p><strong>How to check if you qualify:</strong></p>
+                        <ul>
+                            <li>Add items to cart and proceed to checkout</li>
+                            <li>Shipping charges will be displayed before payment</li>
+                            <li>Apply coupon codes for additional shipping discounts</li>
+                        </ul>
+                        <p>🏆 <strong>Pro tip:</strong> Add an extra book to cross ₹499 and save on shipping!</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 5: Payment Methods -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        What payment methods do you accept?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We accept a wide range of payment methods:</p>
+                        
+                        <p><strong>💳 Cards:</strong></p>
+                        <ul>
+                            <li>Credit Cards (Visa, MasterCard, American Express, RuPay)</li>
+                            <li>Debit Cards (All major banks)</li>
+                            <li>Prepaid Cards & Gift Cards</li>
+                        </ul>
+                        
+                        <p><strong>📱 Digital Wallets & UPI:</strong></p>
+                        <ul>
+                            <li>Google Pay, PhonePe, Paytm, Amazon Pay</li>
+                            <li>BHIM UPI, WhatsApp Pay</li>
+                            <li>Any UPI app (QR code payment)</li>
+                        </ul>
+                        
+                        <p><strong>🏦 Net Banking:</strong></p>
+                        <ul>
+                            <li>SBI, HDFC, ICICI, Axis, Yes Bank, Kotak, and 50+ banks</li>
+                        </ul>
+                        
+                        <p><strong>💵 Cash on Delivery (COD):</strong></p>
+                        <ul>
+                            <li>Available in 19,000+ pin codes</li>
+                            <li>Maximum order value for COD: ₹5,000</li>
+                            <li>Convenience fee: ₹30 per COD order</li>
+                        </ul>
+                        
+                        <p><strong>🔄 EMI Options:</strong></p>
+                        <ul>
+                            <li>No-cost EMI on orders above ₹3,000</li>
+                            <li>3, 6, 9, 12 months tenure available</li>
+                            <li>Available on Credit Cards from leading banks</li>
+                        </ul>
+                        
+                        <p>🔒 <strong>Secure Payments:</strong> All transactions are encrypted and PCI compliant.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 6: Cancel Order -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Can I cancel my order?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>✅ Free cancellation is available with these timelines:</strong></p>
+                        
+                        <p><strong>Before Shipment (within 1 hour of order):</strong></p>
+                        <ul>
+                            <li>Full refund automatically processed</li>
+                            <li>Cancel from <strong>My Orders → Cancel Order</strong></li>
+                            <li>Money refunded within 3-5 business days</li>
+                        </ul>
+                        
+                        <p><strong>After Shipment (before delivery):</strong></p>
+                        <ul>
+                            <li>Cancel within 1 hour of shipping confirmation</li>
+                            <li>Return accepted when delivery is attempted</li>
+                            <li>No need to accept delivery</li>
+                        </ul>
+                        
+                        <p><strong>After Delivery:</strong></p>
+                        <ul>
+                            <li>Use our 7-day return policy</li>
+                            <li>Full refund after quality check</li>
+                            <li>Free pickup arranged from your address</li>
+                        </ul>
+                        
+                        <p><strong>Special Cases:</strong></p>
+                        <ul>
+                            <li>📚 <strong>Pre-ordered books:</strong> Cancel anytime before release for full refund</li>
+                            <li>🎯 <strong>Sale items:</strong> Returnable unless marked "Final Sale"</li>
+                            <li>📖 <strong>Digital books:</strong> Non-refundable after download</li>
+                        </ul>
+                        
+                        <p><strong>How to Cancel:</strong> Go to <strong>My Orders → Select Order → Cancel Order</strong> or contact support.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 7: Write Reviews -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        How do I write a review for a book?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Eligibility:</strong> You can write a review only after:</p>
+                        <ul>
+                            <li>✓ Purchasing and receiving the book</li>
+                            <li>✓ Order status is "Delivered"</li>
+                            <li>✓ Within 30 days of delivery</li>
+                        </ul>
+                        
+                        <p><strong>Steps to write a review:</strong></p>
+                        <ol>
+                            <li>Go to <strong>My Orders</strong> section</li>
+                            <li>Find the delivered order (look for "Write a Review" button)</li>
+                            <li>Rate the book from 1-5 stars (click on stars)</li>
+                            <li>Add a title (e.g., "Amazing read!", "Could be better")</li>
+                            <li>Write your detailed review (minimum 10 words)</li>
+                            <li>Optionally, upload photos of the book</li>
+                            <li>Click <strong>Submit Review</strong></li>
+                        </ol>
+                        
+                        <p><strong>Review Guidelines:</strong></p>
+                        <ul>
+                            <li>✍️ Be honest and constructive</li>
+                            <li>📸 Add photos to help other buyers</li>
+                            <li>🚫 No offensive language or personal attacks</li>
+                            <li>📚 Focus on content quality, binding, paper quality</li>
+                            <li>✅ Verified purchase badge appears on your review</li>
+                        </ul>
+                        
+                        <p><strong>Rewards for reviewing:</strong> Earn 10 loyalty points for each review (max 5 per month). 100 points = ₹10 off!</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 8: Damaged Book -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        My book arrived damaged. What should I do?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Don't worry! We've got you covered.</strong> Follow these steps:</p>
+                        
+                        <p><strong>Step 1: Document the damage</strong></p>
+                        <ul>
+                            <li>📸 Take clear, well-lit photos of the damaged book</li>
+                            <li>📸 Show the packaging if it's also damaged</li>
+                            <li>📸 Take close-ups of specific defects (tears, stains, missing pages)</li>
+                        </ul>
+                        
+                        <p><strong>Step 2: Initiate return/replacement</strong></p>
+                        <ol>
+                            <li>Go to <strong>My Orders</strong></li>
+                            <li>Click <strong>Return/Replace</strong> on the affected order</li>
+                            <li>Select reason: "Damaged Product"</li>
+                            <li>Upload the photos you took</li>
+                            <li>Add brief description of the damage</li>
+                            <li>Choose "Replacement" (preferred) or "Refund"</li>
+                        </ol>
+                        
+                        <p><strong>Step 3: What happens next?</strong></p>
+                        <ul>
+                            <li>✅ Our team verifies within 24 hours</li>
+                            <li>✅ Replacement: New book shipped within 2 days (free)</li>
+                            <li>✅ Refund: Processed after returns team checks the book</li>
+                            <li>✅ Free pickup arranged from your address</li>
+                        </ul>
+                        
+                        <p><strong>Processing Time:</strong></p>
+                        <ul>
+                            <li>Replacement: 5-7 days for new book delivery</li>
+                            <li>Refund: 5-10 business days to original payment method</li>
+                        </ul>
+                        
+                        <p>📞 <strong>Urgent?</strong> Call our support for immediate assistance: 1800-XXX-XXXX</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 9: Account Issues -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        I'm having trouble with my account. What do I do?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Common account issues and solutions:</strong></p>
+                        
+                        <p><strong>🔑 Forgot Password:</strong></p>
+                        <ol>
+                            <li>Click "Forgot Password" on login page</li>
+                            <li>Enter registered email/phone number</li>
+                            <li>Check email/SMS for OTP/reset link</li>
+                            <li>Create new password (minimum 8 characters with 1 number)</li>
+                        </ol>
+                        
+                        <p><strong>📧 Email Change:</strong></p>
+                        <ul>
+                            <li>Go to Account Settings → Email Preferences</li>
+                            <li>Verify current password</li>
+                            <li>Enter new email and verify via OTP</li>
+                        </ul>
+                        
+                        <p><strong>📱 Mobile Number Change:</strong></p>
+                        <ul>
+                            <li>Account Settings → Mobile Number</li>
+                            <li>Request OTP on current number</li>
+                            <li>Enter new number and verify OTP</li>
+                        </ul>
+                        
+                        <p><strong>🔒 Account Locked:</strong></p>
+                        <ul>
+                            <li>Too many failed login attempts → Wait 30 minutes</li>
+                            <li>Contact support to unlock immediately</li>
+                            <li>Use "Forgot Password" to reset and regain access</li>
+                        </ul>
+                        
+                        <p><strong>👤 Profile Update:</strong></p>
+                        <ul>
+                            <li>Change name, profile picture, preferences</li>
+                            <li>Manage address book (add/edit/delete addresses)</li>
+                            <li>Set default shipping/billing address</li>
+                            <li>Update communication preferences (email/SMS notifications)</li>
+                        </ul>
+                        
+                        <p><strong>🗑️ Account Deletion:</strong></p>
+                        <ul>
+                            <li>Contact support to request account deletion</li>
+                            <li>Verification required (ID proof)</li>
+                            <li>Processing time: 30 days for complete deletion</li>
+                        </ul>
+                        
+                        <p>Still stuck? <strong>Live chat</strong> with our support team for instant help!</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 10: Promo Codes & Discounts -->
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        How do I apply promo codes or coupons?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>How to apply coupons:</strong></p>
+                        <ol>
+                            <li>Add items to your cart</li>
+                            <li>Go to Cart or Checkout page</li>
+                            <li>Look for "Apply Coupon Code" or "Gift Card" section</li>
+                            <li>Enter your promo code (case insensitive)</li>
+                            <li>Click "Apply" - discount will be reflected immediately</li>
+                        </ol>
+                        
+                        <p><strong>Types of discounts available:</strong></p>
+                        <ul>
+                            <li>🎯 <strong>Site-wide sales</strong> (automatically applied)</li>
+                            <li>📚 <strong>Category-specific</strong> (e.g., 20% off Fiction)</li>
+                            <li>💰 <strong>Minimum purchase</strong> (e.g., ₹100 off on ₹999+)</li>
+                            <li>🆕 <strong>First order</strong> (NEW10 for 10% off on first purchase)</li>
+                            <li>⭐ <strong>Loyalty rewards</strong> (earn points, redeem for discounts)</li>
+                            <li>🎉 <strong>Festive specials</strong> (limited time codes)</li>
+                        </ul>
+                        
+                        <p><strong>Coupon Rules:</strong></p>
+                        <ul>
+                            <li>One coupon per order (cannot combine multiple)</li>
+                            <li>Valid on minimum purchase amount (if specified)</li>
+                            <li>Check expiry date - most codes valid for 7-30 days</li>
+                            <li>Not applicable on already discounted items (some exceptions)</li>
+                        </ul>
+                        
+                        <p><strong>Where to find codes?</strong></p>
+                        <ul>
+                            <li>📧 Email newsletters (subscribe on homepage)</li>
+                            <li>📱 Push notifications from our app</li>
+                            <li>🎯 Social media (Instagram, Facebook, Twitter)</li>
+                            <li>🎁 Welcome emails for new users</li>
+                            <li>⭐ Loyalty program rewards page</li>
+                        </ul>
+                        
+                        <p><strong>Troubleshooting:</strong> Code not working? Check minimum order value, expiry date, and applicable categories.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support -->
+            <div class="contact-support">
+                <h4><i class="fas fa-headset"></i> Still need help?</h4>
+                <p>Our support team is available 24/7 to assist you</p>
+                <div class="contact-buttons">
+                    <a href="https://wa.me/1234567890" class="contact-btn whatsapp" target="_blank">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="mailto:support@shopcart.com" class="contact-btn email">
+                        <i class="fas fa-envelope"></i> Email Support
+                    </a>
+                    <button class="contact-btn chat" onclick="startLiveChat()">
+                        <i class="fas fa-comments"></i> Live Chat
+                    </button>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.75rem;">📞 Or call us: 1800-123-4567 (Toll-free)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== HELP CENTER MODAL FUNCTIONS ==========
+    function openHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Reset search
+            const searchInput = document.getElementById('faqSearch');
+            if (searchInput) {
+                searchInput.value = '';
+                searchFaqs();
+            }
+            
+            // Reset all FAQ items to closed state
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+    }
+
+    function closeHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Toggle FAQ items
+    function toggleFaq(element) {
+        const faqItem = element.closest('.faq-item');
+        if (faqItem) {
+            faqItem.classList.toggle('active');
+        }
+    }
+
+    // Search FAQ items
+    function searchFaqs() {
+        const searchInput = document.getElementById('faqSearch');
+        if (!searchInput) return;
+        
+        const searchTerm = searchInput.value.toLowerCase();
+        const faqItems = document.querySelectorAll('.faq-item');
+        let hasResults = false;
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question')?.textContent.toLowerCase() || '';
+            const answer = item.querySelector('.faq-answer')?.textContent.toLowerCase() || '';
+            
+            if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                item.style.display = 'block';
+                hasResults = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Show no results message if needed
+        let noResultsMsg = document.getElementById('noResultsMsg');
+        if (!hasResults && searchTerm !== '') {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.id = 'noResultsMsg';
+                noResultsMsg.className = 'no-results';
+                noResultsMsg.innerHTML = '<i class="fas fa-search" style="font-size: 2rem;"></i><p style="margin-top: 10px;">No matching questions found.<br>Try different keywords or contact our support team.</p>';
+                const faqContainer = document.getElementById('faqContainer');
+                if (faqContainer) faqContainer.appendChild(noResultsMsg);
+            }
+        } else if (noResultsMsg) {
+            noResultsMsg.remove();
+        }
+    }
+
+    // Quick action buttons
+    function quickAction(action) {
+        const searchMap = {
+            'order': 'track order',
+            'return': 'return refund damaged',
+            'payment': 'payment method',
+            'account': 'account login password'
+        };
+        
+        const searchInput = document.getElementById('faqSearch');
+        if (searchInput) {
+            searchInput.value = searchMap[action] || action;
+            searchFaqs();
+            
+            // Scroll to FAQ section
+            const faqSection = document.querySelector('.faq-section-title');
+            if (faqSection) {
+                faqSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }
+
+    // Live chat function
+    function startLiveChat() {
+        showToast('Connecting to support agent...', false);
+        setTimeout(() => {
+            showToast('Chat started! A support agent will respond shortly.', false);
+        }, 2000);
+    }
+
+    // Show toast notification
+    function showToast(message, isError = false) {
+        let toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #0a3d2e;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 12px;
+                z-index: 10001;
+                animation: slideIn 0.3s ease;
+                display: none;
+                align-items: center;
+                gap: 10px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            document.body.appendChild(toast);
+            
+            // Add animation styles if not present
+            if (!document.querySelector('#toastStyle')) {
+                const style = document.createElement('style');
+                style.id = 'toastStyle';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        toast.style.backgroundColor = isError ? '#dc2626' : '#0a3d2e';
+        toast.style.display = 'flex';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+        const helpModal = document.getElementById('helpModal');
+        if (helpModal && helpModal.style.display === 'flex' && e.target === helpModal) {
+            closeHelpModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal && helpModal.style.display === 'flex') {
+                closeHelpModal();
+            }
+        }
+    });
+
+    // Current user from Django
+    const currentUser = "{{ user.username|default:'anonymous' }}";
+    
+    function getUserStorageKey(baseKey) {
+        return `${baseKey}_${currentUser}`;
+    }
+    
+    // ========== CATEGORY DROPDOWN ==========
+    function toggleCategory(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('categoryMenu');
+        if (menu) {
+            if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            } else {
+                closeLocationMenu();
+                closeUserMenu();
+                menu.classList.add('show');
+            }
+        }
+    }
+    
+    function filterByCategory(category) {
+        const menu = document.getElementById('categoryMenu');
+        if (menu) menu.classList.remove('show');
+        window.location.href = "{% url 'books:home' %}?category=" + encodeURIComponent(category);
+    }
+    
+    // ========== LOCATION ==========
+    let currentLocation = localStorage.getItem(getUserStorageKey('userLocation')) || '';
+    
+    function initLocation() {
+        if (currentLocation) {
+            const locationText = document.getElementById('selectedLocationText');
+            if (locationText) locationText.innerHTML = currentLocation;
+            highlightCurrentLocation();
+        }
+    }
+    
+    function selectLocation(city) {
+        currentLocation = city;
+        localStorage.setItem(getUserStorageKey('userLocation'), city);
+        const locationText = document.getElementById('selectedLocationText');
+        if (locationText) locationText.innerHTML = city;
+        highlightCurrentLocation();
+        closeLocationMenu();
+        showMessage(`Location set to ${city}`, false);
+    }
+    
+    function highlightCurrentLocation() {
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.classList.remove('current-location');
+            if (item.textContent.trim() === currentLocation) item.classList.add('current-location');
+        });
+    }
+    
+    function filterLocations() {
+        const searchInput = document.getElementById('locationSearch');
+        if (!searchInput) return;
+        const searchTerm = searchInput.value.toLowerCase();
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? 'flex' : 'none';
+        });
+    }
+    
+    function positionLocationDropdown() {
+        const trigger = document.querySelector('.location-trigger');
+        const menu = document.getElementById('locationMenu');
+        if (!trigger || !menu) return;
+        const rect = trigger.getBoundingClientRect();
+        menu.classList.remove('dropdown-bottom', 'dropdown-top', 'dropdown-left');
+        if (window.innerHeight - rect.bottom >= 400) {
+            menu.classList.add('dropdown-bottom');
+        } else {
+            menu.classList.add('dropdown-top');
+        }
+        if (rect.right + 280 > window.innerWidth) menu.classList.add('dropdown-left');
+    }
+    
+    function useCurrentLocation() {
+        const trigger = document.getElementById('selectedLocationText');
+        if (!trigger) return;
+        const originalText = trigger.innerHTML;
+        trigger.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Detecting...';
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async function(position) {
+                const city = await getCityFromCoordinates(position.coords.latitude, position.coords.longitude);
+                if (city) { 
+                    selectLocation(city); 
+                    showMessage(`Location set to ${city}`, false);
+                } else { 
+                    trigger.innerHTML = originalText; 
+                    showMessage('Could not detect city', true);
+                }
+            }, function() { 
+                trigger.innerHTML = originalText; 
+                showMessage('Unable to get location', true);
+            });
+        } else { 
+            trigger.innerHTML = originalText; 
+            showMessage('Geolocation not supported', true);
+        }
+    }
+    
+    async function getCityFromCoordinates(lat, lng) {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&accept-language=en`);
+            const data = await response.json();
+            return data.address.city || data.address.town || data.address.village || null;
+        } catch { 
+            return null; 
+        }
+    }
+    
+    function toggleLocationDropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('locationMenu');
+        if (!menu) return;
+        if (menu.classList.contains('show')) {
+            menu.classList.remove('show');
+        } else {
+            const categoryMenu = document.getElementById('categoryMenu');
+            const userMenu = document.getElementById('userMenu');
+            if (categoryMenu) categoryMenu.classList.remove('show');
+            if (userMenu) userMenu.classList.remove('show');
+            positionLocationDropdown();
+            menu.classList.add('show');
+            const locationSearch = document.getElementById('locationSearch');
+            if (locationSearch) {
+                locationSearch.value = '';
+                filterLocations();
+            }
+        }
+    }
+    
+    function closeLocationMenu() { 
+        const menu = document.getElementById('locationMenu');
+        if (menu) menu.classList.remove('show');
+    }
+    
+    // ========== USER DROPDOWN ==========
+    function toggleUserDropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('userMenu');
+        if (!menu) return;
+        if (menu.classList.contains('show')) {
+            menu.classList.remove('show');
+        } else { 
+            closeLocationMenu(); 
+            const categoryMenu = document.getElementById('categoryMenu');
+            if (categoryMenu) categoryMenu.classList.remove('show');
+            menu.classList.add('show');
+        }
+    }
+    
+    function closeUserMenu() { 
+        const menu = document.getElementById('userMenu');
+        if (menu) menu.classList.remove('show');
+    }
+    
+    // ========== PROFILE ==========
+    function loadProfileData() {
+        if (currentUser === 'anonymous') return;
+        const fullName = document.getElementById('fullName');
+        const email = document.getElementById('email');
+        const phone = document.getElementById('phone');
+        const dob = document.getElementById('dob');
+        const gender = document.getElementById('gender');
+        
+        if (fullName) fullName.value = localStorage.getItem(getUserStorageKey('profileName')) || "{{ user.get_full_name|default:'' }}";
+        if (email) email.value = localStorage.getItem(getUserStorageKey('profileEmail')) || "{{ user.email|default:'' }}";
+        if (phone) phone.value = localStorage.getItem(getUserStorageKey('profilePhone')) || '';
+        if (dob) dob.value = localStorage.getItem(getUserStorageKey('profileDob')) || '';
+        if (gender) gender.value = localStorage.getItem(getUserStorageKey('profileGender')) || '';
+        
+        const displayName = document.getElementById('displayName');
+        if (displayName) displayName.innerText = localStorage.getItem(getUserStorageKey('profileName')) || "{{ user.get_full_name|default:user.username }}";
+    }
+    
+    function openProfileModal() {
+        if (currentUser === 'anonymous') { 
+            showMessage('Please login to edit profile', true); 
+            window.location.href = "{% url 'accounts:login' %}"; 
+            return; 
+        }
+        loadProfileData();
+        const modal = document.getElementById('profileModal');
+        if (modal) modal.classList.add('show');
+        closeUserMenu();
+    }
+    
+    function closeProfileModal() { 
+        const modal = document.getElementById('profileModal');
+        if (modal) modal.classList.remove('show');
+    }
+    
+    function saveProfile() {
+        if (currentUser === 'anonymous') { 
+            showMessage('Please login to save profile', true); 
+            return; 
+        }
+        const fullName = document.getElementById('fullName')?.value || '';
+        const email = document.getElementById('email')?.value || '';
+        const phone = document.getElementById('phone')?.value || '';
+        const dob = document.getElementById('dob')?.value || '';
+        const gender = document.getElementById('gender')?.value || '';
+        
+        if (fullName) localStorage.setItem(getUserStorageKey('profileName'), fullName);
+        if (email) localStorage.setItem(getUserStorageKey('profileEmail'), email);
+        if (phone) localStorage.setItem(getUserStorageKey('profilePhone'), phone);
+        if (dob) localStorage.setItem(getUserStorageKey('profileDob'), dob);
+        if (gender) localStorage.setItem(getUserStorageKey('profileGender'), gender);
+        
+        const displayName = document.getElementById('displayName');
+        if (displayName && fullName) displayName.innerText = fullName;
+        
+        showMessage('Profile updated successfully!', false);
+        closeProfileModal();
+    }
+    
+    function updateProfilePicture(input) {
+        if (currentUser === 'anonymous') { 
+            showMessage('Please login to update profile picture', true); 
+            return; 
+        }
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelectorAll('.profile-pic, .profile-avatar').forEach(el => {
+                    if (el && !el.querySelector('img')) {
+                        el.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` + (el.classList.contains('profile-avatar') ? '<div class="avatar-overlay"><i class="fas fa-camera"></i></div>' : '');
+                    }
+                });
+                localStorage.setItem(getUserStorageKey('profilePicture'), e.target.result);
+                showMessage('Profile picture updated!', false);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function loadProfilePicture() {
+        if (currentUser === 'anonymous') return;
+        const savedPic = localStorage.getItem(getUserStorageKey('profilePicture'));
+        if (savedPic) {
+            document.querySelectorAll('.profile-pic, .profile-avatar').forEach(el => {
+                if (el && !el.querySelector('img')) {
+                    el.innerHTML = `<img src="${savedPic}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` + (el.classList.contains('profile-avatar') ? '<div class="avatar-overlay"><i class="fas fa-camera"></i></div>' : '');
+                }
+            });
+        }
+    }
+    
+    // ========== CHANGE PASSWORD ==========
+    function showChangePassword() {
+        closeUserMenu();
+        const modal = document.getElementById('changePasswordModal');
+        if (modal) modal.classList.add('show');
+        const form = document.getElementById('changePasswordForm');
+        if (form) form.reset();
+        const errorDiv = document.getElementById('passwordMatchError');
+        if (errorDiv) errorDiv.style.display = 'none';
+        const strengthFill = document.getElementById('newStrengthFill');
+        if (strengthFill) strengthFill.style.width = '0%';
+        const strengthText = document.getElementById('newStrengthText');
+        if (strengthText) strengthText.textContent = 'Enter a strong password';
+        document.querySelectorAll('#passwordRequirements li').forEach(li => {
+            li.classList.remove('valid');
+            li.classList.add('invalid');
+            const text = li.textContent.replace(/[^\w\s]/g, '');
+            li.innerHTML = '<i class="fas fa-circle"></i> ' + text;
+        });
+    }
+    
+    function closeChangePasswordModal() { 
+        const modal = document.getElementById('changePasswordModal');
+        if (modal) modal.classList.remove('show');
+    }
+    
+    function togglePassword(fieldId, toggleIcon) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
+            if (toggleIcon) {
+                toggleIcon.classList.toggle('fa-eye');
+                toggleIcon.classList.toggle('fa-eye-slash');
+            }
+        }
+    }
+    
+    function checkPasswordStrength(password) {
+        const checks = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[^a-zA-Z\d]/.test(password)
+        };
+        
+        ['reqLength', 'reqUppercase', 'reqLowercase', 'reqNumber', 'reqSpecial'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                const checkKey = id === 'reqLength' ? 'length' : 
+                                id === 'reqUppercase' ? 'uppercase' :
+                                id === 'reqLowercase' ? 'lowercase' :
+                                id === 'reqNumber' ? 'number' : 'special';
+                const isValid = checks[checkKey];
+                element.classList.remove('valid', 'invalid');
+                element.classList.add(isValid ? 'valid' : 'invalid');
+                const text = element.textContent.replace(/[^\w\s]/g, '');
+                element.innerHTML = `<i class="fas fa-${isValid ? 'check-circle' : 'circle'}"></i> ${text}`;
+            }
+        });
+        
+        const strength = Object.values(checks).filter(Boolean).length;
+        const fill = document.getElementById('newStrengthFill');
+        const text = document.getElementById('newStrengthText');
+        if (fill && text) {
+            const colors = {0: '#ef4444', 1: '#ef4444', 2: '#f59e0b', 3: '#3b82f6', 4: '#10b981'};
+            const widths = {0: '25%', 1: '25%', 2: '50%', 3: '75%', 4: '100%'};
+            const messages = {0: 'Weak password', 1: 'Weak password', 2: 'Fair password', 3: 'Good password', 4: 'Strong password'};
+            fill.style.backgroundColor = colors[strength];
+            fill.style.width = widths[strength];
+            text.textContent = messages[strength];
+        }
+        return strength >= 3;
+    }
+    
+    function checkPasswordsMatch() {
+        const newPass = document.getElementById('newPassword')?.value || '';
+        const confirmPass = document.getElementById('confirmPassword')?.value || '';
+        const errorDiv = document.getElementById('passwordMatchError');
+        const confirmInput = document.getElementById('confirmPassword');
+        
+        if (confirmPass && newPass !== confirmPass) {
+            if (errorDiv) errorDiv.style.display = 'flex';
+            if (confirmInput) confirmInput.style.borderColor = '#ef4444';
+            return false;
+        } else {
+            if (errorDiv) errorDiv.style.display = 'none';
+            if (confirmInput) confirmInput.style.borderColor = '#e2e8f0';
+            return true;
+        }
+    }
+    
+    // ========== UTILITIES ==========
+    function showMessage(message, isError) {
+        const container = document.getElementById('messagesContainer');
+        if (!container) {
+            showToast(message, isError);
+            return;
+        }
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${isError ? 'error' : 'success'}`;
+        alertDiv.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+        container.insertBefore(alertDiv, container.firstChild);
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+    
+    // ========== HELP CENTER & FEEDBACK ==========
+    function showHelpCenter() { 
+        closeUserMenu();
+        openHelpModal();
+    }
+
+    function showFeedback() { 
+        closeUserMenu();
+        const modal = document.getElementById('feedbackModal');
+        if (modal) modal.classList.add('show');
+    }
+    
+    function closeFeedbackModal() {
+        const modal = document.getElementById('feedbackModal');
+        if (modal) modal.classList.remove('show');
+        resetFeedbackForm();
+    }
+    
+    function resetFeedbackForm() {
+        const ratingInput = document.getElementById('feedbackRating');
+        if (ratingInput) ratingInput.value = '0';
+        const messageInput = document.getElementById('feedbackMessage');
+        if (messageInput) messageInput.value = '';
+        const emailInput = document.getElementById('feedbackEmail');
+        if (emailInput) emailInput.value = '';
+        
+        const stars = document.querySelectorAll('#ratingStars i');
+        stars.forEach(star => {
+            star.classList.remove('fas');
+            star.classList.add('far');
+        });
+    }
+    
+    function initStarRating() {
+        const stars = document.querySelectorAll('#ratingStars i');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                const ratingInput = document.getElementById('feedbackRating');
+                if (ratingInput) ratingInput.value = rating;
+                
+                stars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                stars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+        
+        const ratingContainer = document.getElementById('ratingStars');
+        if (ratingContainer) {
+            ratingContainer.addEventListener('mouseleave', function() {
+                const currentRating = parseInt(document.getElementById('feedbackRating')?.value || '0');
+                stars.forEach((s, index) => {
+                    if (index < currentRating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        }
+    }
+    
+    function updateCartBadge(count) {
+        const badge = document.getElementById('cartCount');
+        if (badge) badge.textContent = count;
+    }
+    
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith('csrftoken=')) cookieValue = decodeURIComponent(cookie.substring(10));
+            });
+        }
+        return cookieValue;
+    }
+    
+    function fetchCartCount() {
+        fetch('/get-cart-count/', { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.json())
+            .then(data => updateCartBadge(data.count || data.cart_count || 0))
+            .catch(() => updateCartBadge({{ cart_count|default:0 }}));
+    }
+    
+    // Event Listeners
+    document.addEventListener('click', function(event) {
+        const categoryMenu = document.getElementById('categoryMenu');
+        const locationMenu = document.getElementById('locationMenu');
+        const userMenu = document.getElementById('userMenu');
+        
+        if (!event.target.closest('.category-dropdown') && categoryMenu) categoryMenu.classList.remove('show');
+        if (!event.target.closest('.location-dropdown') && locationMenu) closeLocationMenu();
+        if (!event.target.closest('.user-dropdown') && userMenu) closeUserMenu();
+        
+        if (event.target.classList.contains('modal-overlay')) { 
+            closeProfileModal(); 
+            closeChangePasswordModal();
+            closeFeedbackModal();
+            closeHelpModal();
+        }
+    });
+    
+    const categoryMenu = document.getElementById('categoryMenu');
+    const locationMenu = document.getElementById('locationMenu');
+    const userMenu = document.getElementById('userMenu');
+    
+    if (categoryMenu) categoryMenu.addEventListener('click', e => e.stopPropagation());
+    if (locationMenu) locationMenu.addEventListener('click', e => e.stopPropagation());
+    if (userMenu) userMenu.addEventListener('click', e => e.stopPropagation());
+    
+    const newPasswordInput = document.getElementById('newPassword');
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() { 
+            checkPasswordStrength(this.value); 
+            checkPasswordsMatch(); 
+        });
+    }
+    
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    if (confirmPasswordInput) confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
+    
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentPassword')?.value || '';
+            const newPassword = document.getElementById('newPassword')?.value || '';
+            const confirmPassword = document.getElementById('confirmPassword')?.value || '';
+            
+            if (!currentPassword || !newPassword || !confirmPassword) { 
+                showMessage('Please fill in all fields', true); 
+                return; 
+            }
+            if (newPassword !== confirmPassword) { 
+                showMessage('New passwords do not match', true); 
+                return; 
+            }
+            if (newPassword.length < 8) { 
+                showMessage('Password must be at least 8 characters long', true); 
+                return; 
+            }
+            
+            const btn = document.getElementById('changePasswordBtn');
+            if (!btn) return;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Updating...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch("{% url 'accounts:change_password' %}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken(), 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword, confirm_password: confirmPassword })
+                });
+                const data = await response.json();
+                if (data.success) { 
+                    showMessage(data.message, false); 
+                    closeChangePasswordModal(); 
+                    if (changePasswordForm) changePasswordForm.reset(); 
+                } else {
+                    showMessage(data.error, true);
+                }
+            } catch (error) { 
+                showMessage('An error occurred. Please try again.', true); 
+            } finally { 
+                btn.innerHTML = originalText; 
+                btn.disabled = false; 
+            }
+        });
+    }
+    
+    // Submit feedback
+    const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+    if (submitFeedbackBtn) {
+        submitFeedbackBtn.addEventListener('click', function() {
+            const rating = document.getElementById('feedbackRating')?.value || '0';
+            const message = document.getElementById('feedbackMessage')?.value || '';
+            const email = document.getElementById('feedbackEmail')?.value || '';
+            
+            if (!rating || rating === '0') {
+                showMessage('Please rate your experience', true);
+                return;
+            }
+            
+            if (!message.trim()) {
+                showMessage('Please enter your feedback', true);
+                return;
+            }
+            
+            fetch('/submit-feedback/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    rating: rating,
+                    message: message,
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Thank you for your feedback! 🙏', false);
+                    closeFeedbackModal();
+                } else {
+                    showMessage(data.error || 'Failed to submit feedback', true);
+                }
+            })
+            .catch(error => {
+                showMessage('An error occurred. Please try again.', true);
+            });
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initLocation();
+        updateCartBadge({{ cart_count|default:0 }});
+        fetchCartCount();
+        loadProfileData();
+        loadProfilePicture();
+        initStarRating();
+    });
+</script>
+</body>
+</html>

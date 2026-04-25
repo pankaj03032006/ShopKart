@@ -1,0 +1,830 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .seller-login-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated background shapes */
+    .seller-login-container::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(10, 61, 46, 0.08);
+        border-radius: 50%;
+        top: -150px;
+        right: -150px;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .seller-login-container::after {
+        content: '';
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(10, 61, 46, 0.05);
+        border-radius: 50%;
+        bottom: -100px;
+        left: -100px;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    .login-card {
+        max-width: 480px;
+        width: 100%;
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease;
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        padding: 40px 30px;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: shimmer 10s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translate(-20%, -20%) rotate(0deg); }
+        100% { transform: translate(20%, 20%) rotate(360deg); }
+    }
+
+    .seller-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        position: relative;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); }
+    }
+
+    .seller-icon i {
+        font-size: 3rem;
+        color: #0a3d2e;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .card-header p {
+        margin: 10px 0 0;
+        opacity: 0.9;
+        font-size: 0.85rem;
+    }
+
+    .seller-badge {
+        display: inline-block;
+        background: rgba(255, 215, 0, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 6px 16px;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        margin-top: 15px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .form-group label i {
+        margin-right: 6px;
+        color: #0a3d2e;
+    }
+
+    /* Username Input Wrapper - Same as password */
+    .username-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .username-wrapper .input-icon {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8;
+        font-size: 1rem;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .username-wrapper .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        padding-left: 44px;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        background: #fefefe;
+    }
+
+    .username-wrapper .form-control:focus {
+        outline: none;
+        border-color: #0a3d2e;
+        box-shadow: 0 0 0 4px rgba(10, 61, 46, 0.1);
+        background: white;
+    }
+
+    .username-wrapper .form-control:focus + .input-icon {
+        color: #0a3d2e;
+    }
+
+    /* Password Wrapper */
+    .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-wrapper .input-icon {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8;
+        font-size: 1rem;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .password-wrapper .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        padding-left: 44px;
+        padding-right: 44px;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        background: #fefefe;
+    }
+
+    .password-wrapper .form-control:focus {
+        outline: none;
+        border-color: #0a3d2e;
+        box-shadow: 0 0 0 4px rgba(10, 61, 46, 0.1);
+        background: white;
+    }
+
+    .password-wrapper .form-control:focus + .input-icon {
+        color: #0a3d2e;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 16px;
+        color: #94a3b8;
+        cursor: pointer;
+        z-index: 1;
+        font-size: 1rem;
+        transition: color 0.2s;
+    }
+
+    .password-toggle:hover {
+        color: #0a3d2e;
+    }
+
+    /* Password strength indicator */
+    .password-strength {
+        margin-top: 8px;
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    /* Form options */
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        font-size: 0.85rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        color: #4a5568;
+        transition: color 0.2s;
+    }
+
+    .checkbox-label:hover {
+        color: #0a3d2e;
+    }
+
+    .checkbox-label input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #0a3d2e;
+    }
+
+    .forgot-link {
+        color: #0a3d2e;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .forgot-link:hover {
+        color: #ffd700;
+        text-decoration: underline;
+    }
+
+    /* Login Button */
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-login:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(10, 61, 46, 0.4);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    /* Divider */
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .divider::before {
+        margin-right: 15px;
+    }
+
+    .divider::after {
+        margin-left: 15px;
+    }
+
+    /* Social Login Buttons */
+    .social-login {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .social-btn {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #4a5568;
+    }
+
+    .social-btn:hover {
+        border-color: #0a3d2e;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .social-btn.google:hover i {
+        color: #DB4437;
+    }
+
+    .social-btn.github:hover i {
+        color: #333;
+    }
+
+    /* Features Section */
+    .features {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0 25px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .feature-item {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-5px);
+        background: linear-gradient(135deg, #e8f5e9, #c8e6d9);
+    }
+
+    .feature-item i {
+        font-size: 1.5rem;
+        color: #0a3d2e;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .feature-item span {
+        font-size: 0.75rem;
+        color: #4a5568;
+        font-weight: 500;
+    }
+
+    /* Register Link */
+    .register-link {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eef2f6;
+    }
+
+    .register-link p {
+        color: #5b6e7c;
+        font-size: 0.9rem;
+    }
+
+    .register-link a {
+        color: #0a3d2e;
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .register-link a:hover {
+        color: #ffd700;
+        gap: 8px;
+    }
+
+    /* Alert Messages */
+    .alert-message {
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.85rem;
+        animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-error {
+        background: rgba(220, 38, 38, 0.1);
+        color: #dc2626;
+        border-left: 4px solid #dc2626;
+    }
+
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+        border-left: 4px solid #16a34a;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+        border-left: 4px solid #2563eb;
+    }
+
+    /* Loading state */
+    .btn-login.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn-login.loading i {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .card-body {
+            padding: 30px 25px;
+        }
+        
+        .card-header {
+            padding: 30px 20px;
+        }
+        
+        .card-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .features {
+            flex-direction: column;
+        }
+        
+        .social-login {
+            flex-direction: column;
+        }
+        
+        .seller-icon {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .seller-icon i {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="seller-login-container">
+    <div class="login-card">
+        <div class="card-header">
+            <div class="seller-icon">
+                <i class="fas fa-chalkboard-user"></i>
+            </div>
+            <h2>Welcome Back, Seller!</h2>
+            <p>Access your dashboard and manage your bookstore</p>
+            <div class="seller-badge">
+                <i class="fas fa-check-circle"></i> Join 10,000+ Successful Sellers
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Display Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-message alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" id="sellerLoginForm">
+                {% csrf_token %}
+
+                <!-- Username Field - Fixed with same style as password -->
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i> Username or Email
+                    </label>
+                    <div class="username-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="text" 
+                               name="username" 
+                               id="username" 
+                               class="form-control" 
+                               placeholder="Enter your username or email"
+                               required
+                               autocomplete="username">
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <div class="password-wrapper">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password" 
+                               name="password" 
+                               id="password" 
+                               class="form-control" 
+                               placeholder="Enter your password"
+                               required
+                               autocomplete="current-password">
+                        <i class="far fa-eye password-toggle"></i>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember_me" id="rememberMe"> 
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-link" onclick="showForgotPassword(); return false;">
+                        <i class="fas fa-question-circle"></i> Forgot password?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login to Seller Dashboard</span>
+                </button>
+
+                <div class="divider">
+                    <span>or continue with</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn google" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="social-btn github" onclick="socialLogin('github')">
+                        <i class="fab fa-github"></i> GitHub
+                    </button>
+                </div>
+
+                <div class="features">
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Real-time Analytics</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-box-open"></i>
+                        <span>Inventory Management</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-rupee-sign"></i>
+                        <span>Fast Payouts</span>
+                    </div>
+                </div>
+
+                <div class="register-link">
+                    <p>
+                        <i class="fas fa-store"></i> First time selling? 
+                        <a href="{% url 'accounts:seller_signup' %}">
+                            Create Seller Account <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </p>
+                    <p style="font-size: 0.7rem; margin-top: 12px;">
+                        <a href="{% url 'accounts:login' %}" style="color: #94a3b8;">
+                            <i class="fas fa-arrow-left"></i> Back to Customer Login
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password visibility toggle
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.querySelector('.password-toggle');
+        
+        if (passwordInput && toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.className = type === 'password' ? 'far fa-eye password-toggle' : 'far fa-eye-slash password-toggle';
+            });
+        }
+        
+        // Password strength indicator
+        const passwordField = document.getElementById('password');
+        const strengthBar = document.querySelector('.strength-bar');
+        
+        if (passwordField && strengthBar) {
+            passwordField.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length > 0) {
+                    if (password.length >= 8) strength += 25;
+                    if (password.match(/[a-z]/)) strength += 25;
+                    if (password.match(/[A-Z]/)) strength += 25;
+                    if (password.match(/[0-9]/)) strength += 25;
+                    
+                    strengthBar.style.width = strength + '%';
+                    
+                    if (strength < 50) {
+                        strengthBar.style.background = '#ef4444';
+                    } else if (strength < 75) {
+                        strengthBar.style.background = '#f59e0b';
+                    } else {
+                        strengthBar.style.background = '#10b981';
+                    }
+                } else {
+                    strengthBar.style.width = '0%';
+                }
+            });
+        }
+        
+        // Form submission with loading state
+        const form = document.getElementById('sellerLoginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                
+                if (!username || !password) {
+                    e.preventDefault();
+                    showMessage('Please enter both username and password', 'error');
+                    return false;
+                }
+                
+                // Show loading state
+                loginBtn.classList.add('loading');
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Logging in...';
+                
+                return true;
+            });
+        }
+        
+        // Auto-hide messages after 5 seconds
+        const messages = document.querySelectorAll('.alert-message');
+        messages.forEach(msg => {
+            setTimeout(() => {
+                msg.style.opacity = '0';
+                msg.style.transform = 'translateY(-10px)';
+                setTimeout(() => msg.remove(), 300);
+            }, 5000);
+        });
+        
+        // Animate features on scroll
+        const features = document.querySelectorAll('.feature-item');
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        features.forEach(feature => {
+            feature.style.opacity = '0';
+            feature.style.transform = 'translateY(20px)';
+            feature.style.transition = 'all 0.6s ease';
+            observer.observe(feature);
+        });
+    });
+    
+    function showMessage(message, type) {
+        const container = document.querySelector('.card-body');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert-message alert-${type}`;
+        alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 5000);
+    }
+    
+    function showForgotPassword() {
+        showMessage('Password reset link will be sent to your registered email. Please check your inbox.', 'info');
+    }
+    
+    function socialLogin(provider) {
+        showMessage(`${provider} login feature coming soon!`, 'info');
+    }
+</script>
+
+{% endblock %}

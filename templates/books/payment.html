@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Secure Payment | Old Book Store</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e8f0f5 0%, #d4e2ea 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Container */
+        .payment-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Brand Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e3b2f, #2a5a46);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .brand-header p {
+            color: #5b6e7c;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Payment Card */
+        .payment-card {
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        /* Book Preview Section */
+        .book-preview {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .book-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e5a44, #2c7a5e);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 20px rgba(30, 90, 68, 0.25);
+        }
+
+        .book-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .book-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1e2a32;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-author {
+            color: #6c7e8c;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Price Section */
+        .price-section {
+            padding: 1.5rem;
+            background: #ffffff;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .price-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8ba0ae;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-amount {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #1e5a44;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .price-amount small {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c7e8c;
+        }
+
+        .price-breakdown {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #e2e8f0;
+            font-size: 0.8rem;
+            color: #5b6e7c;
+        }
+
+        /* Payment Details */
+        .payment-details {
+            padding: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            background: #f0fdf4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c7a5e;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #8ba0ae;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #1e2a32;
+            font-size: 0.9rem;
+        }
+
+        /* Pay Button */
+        .pay-button-wrapper {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+
+        .btn-pay {
+            width: 100%;
+            background: linear-gradient(135deg, #fb641b, #f4501b);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 14px rgba(251, 100, 27, 0.3);
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #fa5210, #f23c0a);
+            box-shadow: 0 12px 22px rgba(251, 100, 27, 0.4);
+        }
+
+        .btn-pay:active {
+            transform: translateY(0);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Security Badges */
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: #6c7e8c;
+            background: rgba(255,255,255,0.8);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+        }
+
+        .badge i {
+            font-size: 0.8rem;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1e5a44;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Toast Message */
+        .toast-message {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e2a32;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: none;
+            z-index: 3000;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Order ID Display */
+        .order-id {
+            background: #fefce8;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            margin: 1rem 1.5rem;
+            font-size: 0.7rem;
+            color: #854d0e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 550px) {
+            .payment-container {
+                max-width: 100%;
+            }
+            .price-amount {
+                font-size: 2.2rem;
+            }
+            .btn-pay {
+                padding: 0.85rem 1.2rem;
+                font-size: 1rem;
+            }
+            .toast-message {
+                white-space: normal;
+                text-align: center;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="payment-container">
+    <div class="brand-header">
+        <h1>
+            <i class="fas fa-book-open"></i> 
+            Old Book Store
+        </h1>
+        <p>Secure checkout · Instant payment</p>
+    </div>
+
+    <div class="payment-card">
+        <!-- Book Preview -->
+        <div class="book-preview">
+            <div class="book-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="book-title">{{ book.title }}</div>
+            <div class="book-author">
+                <i class="fas fa-user-pen"></i> {{ book.author }}
+            </div>
+        </div>
+
+        <!-- Price Section -->
+        <div class="price-section">
+            <div class="price-label">Total Amount</div>
+            <div class="price-amount">
+                ₹{{ book.price }}
+                <small>inclusive of all taxes</small>
+            </div>
+            <div class="price-breakdown">
+                <span>📦 Free Delivery</span>
+                <span>🔄 7-day returns</span>
+                <span>🔒 Secure Payment</span>
+            </div>
+        </div>
+
+        <!-- Order ID Display -->
+        {% if payment.id %}
+        <div class="order-id">
+            <i class="fas fa-receipt"></i>
+            <span>Order ID: {{ payment.id }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Payment Details -->
+        <div class="payment-details">
+            <div class="detail-row">
+                <div class="detail-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">Payment Method</div>
+                    <div class="detail-value">Credit/Debit Card · UPI · NetBanking · Wallet</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">Secure Payment</div>
+                    <div class="detail-value">Razorpay PCI-DSS compliant · 256-bit encryption</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">Delivery</div>
+                    <div class="detail-value">3-5 business days · Free shipping</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pay Button -->
+        <div class="pay-button-wrapper">
+            <button class="btn-pay" id="pay-btn">
+                <i class="fas fa-lock"></i> Pay ₹{{ book.price }} securely
+            </button>
+        </div>
+    </div>
+
+    <!-- Security Badges -->
+    <div class="security-badges">
+        <span class="badge"><i class="fas fa-lock"></i> 100% Secure</span>
+        <span class="badge"><i class="fas fa-credit-card"></i> Encrypted Payment</span>
+        <span class="badge"><i class="fas fa-headset"></i> 24/7 Support</span>
+        <span class="badge"><i class="fas fa-shield-virus"></i> Buyer Protection</span>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Redirecting to secure payment gateway...</div>
+</div>
+
+<!-- Toast Message -->
+<div id="toastMessage" class="toast-message"></div>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    // Show toast notification
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toastMessage');
+        toast.textContent = message;
+        toast.style.backgroundColor = isError ? '#c62828' : '#1e5a44';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Show loading overlay
+    function showLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = 'flex';
+    }
+
+    // Hide loading overlay
+    function hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = 'none';
+    }
+
+    // Get payment details from Django context
+    const razorpayKey = "{{ razorpay_key_id }}";
+    const amount = "{{ payment.amount }}";
+    const orderId = "{{ payment.id }}";
+    const bookTitle = "{{ book.title }}";
+    const bookPrice = {{ book.price }};
+
+    // Validate payment details
+    if (!razorpayKey || razorpayKey === "None" || razorpayKey === "") {
+        console.error("Razorpay key is missing!");
+        showToast("Payment configuration error. Please contact support.", true);
+    }
+
+    // Razorpay payment options
+    var options = {
+        key: razorpayKey,
+        amount: amount,
+        currency: "INR",
+        name: "Old Book Store",
+        description: bookTitle,
+        image: "https://via.placeholder.com/80?text=Books",
+        order_id: orderId,
+        handler: function (response) {
+            // Payment successful
+            showToast("✅ Payment Successful! Redirecting...");
+            
+            // Redirect to success page with payment details
+            setTimeout(function() {
+                window.location.href = "/payment-success/{{ book.id }}/?payment_id=" + response.razorpay_payment_id + "&order_id=" + response.razorpay_order_id + "&signature=" + response.razorpay_signature;
+            }, 1500);
+        },
+        modal: {
+            ondismiss: function() {
+                hideLoading();
+                showToast("❌ Payment cancelled. You can try again.", true);
+            },
+            escape: true,
+            backdropclose: false
+        },
+        theme: {
+            color: "#1e5a44"
+        },
+        prefill: {
+            name: "{{ request.user.get_full_name|default:'' }}",
+            email: "{{ request.user.email|default:'' }}",
+            contact: "{{ request.user.phone|default:'' }}"
+        },
+        notes: {
+            address: "Old Book Store Delivery",
+            book_title: bookTitle
+        }
+    };
+
+    // Initialize Razorpay
+    var rzp1 = new Razorpay(options);
+
+    // Add event listener for Razorpay errors
+    rzp1.on('payment.failed', function(response) {
+        hideLoading();
+        console.error("Payment failed:", response.error);
+        showToast("❌ Payment failed: " + (response.error.description || "Please try again"), true);
+    });
+
+    // Handle button click
+    document.getElementById("pay-btn").onclick = function(e) {
+        e.preventDefault();
+        
+        // Validate if amount is valid
+        if (!amount || parseFloat(amount) <= 0) {
+            showToast("❌ Invalid payment amount. Please refresh and try again.", true);
+            return;
+        }
+        
+        if (!razorpayKey || razorpayKey === "None") {
+            showToast("❌ Payment gateway not configured. Please contact support.", true);
+            return;
+        }
+        
+        // Show loading effect
+        showLoading();
+        
+        // Small delay to show loading animation before opening Razorpay
+        setTimeout(function() {
+            hideLoading();
+            try {
+                rzp1.open();
+            } catch (err) {
+                hideLoading();
+                showToast("❌ Unable to initialize payment. Please check your connection.", true);
+                console.error("Razorpay error:", err);
+            }
+        }, 500);
+    };
+
+    // Optional: Add keyboard support (Enter key)
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const payBtn = document.getElementById('pay-btn');
+            if (payBtn && !payBtn.disabled) {
+                payBtn.click();
+            }
+        }
+    });
+
+    // Log successful page load
+    console.log("Payment page loaded successfully with order ID:", orderId);
+</script>
+
+<!-- Additional fallback for older browsers -->
+<noscript>
+    <div style="text-align: center; padding: 20px; background: #fee2e2; color: #c62828; border-radius: 12px; margin-top: 20px;">
+        <i class="fas fa-exclamation-triangle"></i> JavaScript is required to make payment. Please enable JavaScript in your browser.
+    </div>
+</noscript>
+
+</body>
+</html>

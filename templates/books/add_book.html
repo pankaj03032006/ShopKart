@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopcart - Best Online Bookstore</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #1e2a32;
+        }
+
+        /* ========== NAVBAR STYLES ========== */
+        .navbar {
+            background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 8px 40px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .top-bar i {
+            margin-right: 5px;
+        }
+
+        .offer-text {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .main-nav {
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-link:hover {
+            color: #ffd700;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffd700;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Categories Dropdown */
+        .category-dropdown {
+            position: relative;
+        }
+
+        .category-trigger {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            padding: 5px 0;
+        }
+
+        .category-trigger:hover {
+            color: #ffd700;
+        }
+
+        .category-menu {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            background: white;
+            width: 650px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-menu.show {
+            display: flex;
+        }
+
+        .category-column {
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .category-column h4 {
+            color: #0a3d2e;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border-left: 3px solid #0a3d2e;
+            padding-left: 10px;
+        }
+
+        .category-column a {
+            display: block;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 6px 0 6px 10px;
+            transition: all 0.2s;
+        }
+
+        .category-column a:hover {
+            color: #0a3d2e;
+            padding-left: 15px;
+            background: #f0fdf4;
+            border-radius: 8px;
+        }
+
+        /* Search Bar */
+        .search-form {
+            display: flex;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 40px 0 0 40px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 10px 18px;
+            border: none;
+            background: #ffd700;
+            color: #0a3d2e;
+            border-radius: 0 40px 40px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #ffc107;
+        }
+
+        /* User Section */
+        .user-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-trigger {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .user-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: white;
+            color: #1e2a32;
+            width: 250px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .user-menu.show {
+            display: block;
+        }
+
+        .user-menu h4 {
+            margin-bottom: 12px;
+            color: #0a3d2e;
+        }
+
+        .user-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #4a5568;
+            padding: 8px 0;
+            transition: all 0.2s;
+        }
+
+        .user-menu a:hover {
+            color: #0a3d2e;
+            padding-left: 5px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            color: #c62828;
+            padding-left: 5px;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #ffd700;
+            color: #0a3d2e;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        /* Messages */
+        .messages-container {
+            padding: 15px 40px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+            border-left: 4px solid #ef6c00;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 140px);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6d9);
+            margin: 20px 40px;
+            border-radius: 24px;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            color: #0a3d2e;
+            margin-bottom: 15px;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-nav {
+                flex-direction: column;
+            }
+            .search-form {
+                width: 100%;
+                max-width: 100%;
+            }
+            .category-menu {
+                width: 90vw;
+                left: -100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .nav-menu {
+                justify-content: center;
+            }
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+            .category-menu {
+                width: 90vw;
+                left: -50px;
+            }
+            .user-section {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="top-bar">
+        <div><i class="fas fa-phone-alt"></i> +91 8969695925</div>
+        <div class="offer-text"><i class="fas fa-tag"></i> Get 50% Off on Selected Items | Shop Now</div>
+        <div><i class="fas fa-globe"></i> English ▼ | <i class="fas fa-map-marker-alt"></i> Location ▼</div>
+    </div>
+
+    <div class="main-nav">
+        <!-- LOGO -->
+        <div class="logo">
+            <a href="{% url 'books:home' %}" style="color: white; text-decoration: none;">
+                <i class="fas fa-book-open"></i>
+                Shopcart
+            </a>
+        </div>
+
+        <!-- MENU -->
+        <div class="nav-menu">
+            <!-- CATEGORIES DROPDOWN -->
+            <div class="category-dropdown">
+                <div class="category-trigger" onclick="toggleCategory(event)">
+                    <i class="fas fa-bars"></i> Categories <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-menu" id="categoryMenu">
+                    <div class="category-column">
+                        <h4>Engineering</h4>
+                        <a href="{% url 'books:home' %}?category=Engineering"><i class="fas fa-laptop-code"></i> Computer Science</a>
+                        <a href="{% url 'books:home' %}?category=Engineering"><i class="fas fa-cogs"></i> Mechanical</a>
+                        <a href="{% url 'books:home' %}?category=Engineering"><i class="fas fa-building"></i> Civil</a>
+                        <a href="{% url 'books:home' %}?category=Engineering"><i class="fas fa-bolt"></i> Electrical</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>School Books</h4>
+                        <a href="{% url 'books:home' %}?category=School Books"><i class="fas fa-graduation-cap"></i> NCERT</a>
+                        <a href="{% url 'books:home' %}?category=School Books"><i class="fas fa-school"></i> CBSE</a>
+                        <a href="{% url 'books:home' %}?category=School Books"><i class="fas fa-book"></i> ICSE</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>Competitive Exams</h4>
+                        <a href="{% url 'books:home' %}?category=Competitive Exams"><i class="fas fa-landmark"></i> UPSC</a>
+                        <a href="{% url 'books:home' %}?category=Competitive Exams"><i class="fas fa-chart-line"></i> JEE</a>
+                        <a href="{% url 'books:home' %}?category=Competitive Exams"><i class="fas fa-heartbeat"></i> NEET</a>
+                    </div>
+                    <div class="category-column">
+                        <h4>Other</h4>
+                        <a href="{% url 'books:home' %}?category=Fiction"><i class="fas fa-feather-alt"></i> Fiction</a>
+                        <a href="{% url 'books:home' %}?category=Non-Fiction"><i class="fas fa-history"></i> Non-Fiction</a>
+                        <a href="{% url 'books:home' %}?category=Academic"><i class="fas fa-user-astronaut"></i> Academic</a>
+                        <a href="{% url 'books:home' %}?category=Others"><i class="fas fa-ellipsis-h"></i> Others</a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{% url 'books:home' %}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+
+            {% if user.is_authenticated and user.seller_profile %}
+                <a href="{% url 'accounts:seller_dashboard' %}" class="nav-link">
+                    <i class="fas fa-store"></i> Seller Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'books:sell_book' %}" class="nav-link">
+                    <i class="fas fa-chalkboard-user"></i> Become Seller
+                </a>
+            {% endif %}
+
+            <a href="{% url 'books:cart' %}" class="nav-link cart-icon" style="display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-badge" id="cartCount" style="background: #ffd700; color: #0a3d2e; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; min-width: 20px; text-align: center; display: inline-block;">
+                    {{ cart_count|default:0 }}
+                </span>
+            </a>
+        </div>
+
+        <!-- SEARCH -->
+        <form method="GET" action="{% url 'books:home' %}" class="search-form">
+            <input type="text" name="q" placeholder="Search books by title, author, or category..." class="search-input" value="{{ search_query|default:'' }}">
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+
+        <!-- USER SECTION -->
+        <div class="user-section">
+            {% if user.is_authenticated %}
+                <div class="user-dropdown">
+                    <div class="user-trigger" onclick="toggleUserDropdown(event)">
+                        <i class="fas fa-user-circle"></i> {{ user.username }}
+                        {% if user.seller_profile %}
+                            <span style="background: #ffd700; color: #0a3d2e; padding: 2px 6px; border-radius: 20px; font-size: 0.7rem; margin-left: 5px;">Seller</span>
+                        {% endif %}
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="user-menu" id="userMenu">
+                        <h4><i class="fas fa-id-card"></i> Your Account</h4>
+                        <a href="{% url 'my_orders' %}">
+                            <i class="fas fa-box"></i> My Orders
+                        </a>
+                        <a href="{% url 'books:saved_addresses' %}">
+                            <i class="fas fa-map-pin"></i> Saved Address
+                        </a>
+                        <hr style="margin: 10px 0;">
+                        <form action="{% url 'books:logout' %}" method="POST" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{% url 'accounts:signup' %}" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- MESSAGES -->
+<div class="messages-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- HERO SECTION -->
+<div class="hero-section">
+    <h1><i class="fas fa-book-reader"></i> Welcome to Shopcart</h1>
+    <p>Discover thousands of books at unbeatable prices. Free delivery on orders above ₹499!</p>
+</div>
+
+<!-- MAIN CONTENT BLOCK -->
+<div class="main-content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<script>
+    // Toggle Category Dropdown
+    function toggleCategory(event) {
+        event.stopPropagation();
+        var menu = document.getElementById("categoryMenu");
+        if (menu.classList.contains("show")) {
+            menu.classList.remove("show");
+        } else {
+            // Close user menu if open
+            var userMenu = document.getElementById("userMenu");
+            if (userMenu) userMenu.classList.remove("show");
+            menu.classList.add("show");
+        }
+    }
+
+    // Toggle User Dropdown
+    function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var menu = document.getElementById("userMenu");
+        if (menu.classList.contains("show")) {
+            menu.classList.remove("show");
+        } else {
+            // Close category menu if open
+            var categoryMenu = document.getElementById("categoryMenu");
+            if (categoryMenu) categoryMenu.classList.remove("show");
+            menu.classList.add("show");
+        }
+    }
+
+    // Close dropdowns when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.closest('.user-dropdown')) {
+            var userMenu = document.getElementById("userMenu");
+            if (userMenu) userMenu.classList.remove("show");
+        }
+        if (!event.target.closest('.category-dropdown')) {
+            var categoryMenu = document.getElementById("categoryMenu");
+            if (categoryMenu) categoryMenu.classList.remove("show");
+        }
+    }
+
+    // Update cart badge function
+    function updateCartBadge(count) {
+        const cartBadge = document.getElementById('cartCount');
+        if (cartBadge) {
+            cartBadge.textContent = count;
+            cartBadge.style.display = 'inline-block';
+        }
+    }
+
+    // Get CSRF token
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Fetch current cart count from server
+    function fetchCartCount() {
+        fetch('/get-cart-count/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success || data.count !== undefined) {
+                const count = data.count || 0;
+                updateCartBadge(count);
+            } else if (data.cart_count !== undefined) {
+                updateCartBadge(data.cart_count);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching cart count:', error);
+            const initialCount = {{ cart_count|default:0 }};
+            updateCartBadge(initialCount);
+        });
+    }
+
+    // Global function to update cart from any page
+    window.refreshCartBadge = function() {
+        fetchCartCount();
+    };
+
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Use initial value from Django
+        updateCartBadge({{ cart_count|default:0 }});
+        // Then fetch fresh count
+        fetchCartCount();
+    });
+</script>
+
+</body>
+</html>

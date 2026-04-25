@@ -1,0 +1,877 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    /* Modern Place Order UI - With Saved Addresses & Payment Redirect */
+    .order-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Page Header */
+    .order-header {
+        margin-bottom: 2rem;
+    }
+
+    .order-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Three Column Layout */
+    .order-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.8rem;
+    }
+
+    /* Saved Addresses Section - LEFT */
+    .saved-addresses-section {
+        flex: 1.2;
+        min-width: 300px;
+        background: #ffffff;
+        border-radius: 28px;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f6;
+        height: fit-content;
+        overflow: hidden;
+    }
+
+    .section-header {
+        background: #f8fafc;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #eef2f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .section-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #1e2a32;
+    }
+
+    .btn-add-address {
+        background: linear-gradient(135deg, #1e5a44, #0f3b2c);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-add-address:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, #154e3b, #0a2e22);
+    }
+
+    /* Address List Container */
+    .address-list {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .address-card {
+        background: #ffffff;
+        border: 1.5px solid #eef2f6;
+        border-radius: 20px;
+        padding: 1rem 1.2rem;
+        margin: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .address-card:hover {
+        border-color: #2c7a5e;
+        box-shadow: 0 4px 12px rgba(44, 122, 94, 0.1);
+        transform: translateX(2px);
+    }
+
+    .address-card.selected {
+        border-color: #1e5a44;
+        background: #f5fef9;
+        box-shadow: 0 4px 12px rgba(30, 90, 68, 0.15);
+    }
+
+    .address-card.selected::before {
+        content: "✓";
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #1e5a44;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .address-name {
+        font-weight: 700;
+        color: #1e2a32;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0.5rem;
+    }
+
+    .address-detail {
+        font-size: 0.85rem;
+        color: #5b6e7c;
+        margin: 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .address-actions {
+        margin-top: 0.75rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .edit-address-btn, .delete-address-btn {
+        background: none;
+        border: none;
+        font-size: 0.7rem;
+        cursor: pointer;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .edit-address-btn {
+        color: #2c7a5e;
+    }
+
+    .edit-address-btn:hover {
+        background: #e8f5f0;
+    }
+
+    .delete-address-btn {
+        color: #e74c3c;
+    }
+
+    .delete-address-btn:hover {
+        background: #fee2e2;
+    }
+
+    .empty-addresses {
+        text-align: center;
+        padding: 2rem;
+        color: #94a3b8;
+    }
+
+    /* Order Summary Card - CENTER */
+    .order-summary {
+        flex: 1;
+        min-width: 280px;
+        background: #ffffff;
+        border-radius: 28px;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: 1px solid #eef2f6;
+        height: fit-content;
+    }
+
+    .summary-header {
+        background: #f8fafc;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #eef2f6;
+    }
+
+    .summary-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #1e2a32;
+    }
+
+    .book-preview {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-bottom: 1px solid #f0f4f8;
+    }
+
+    .book-cover {
+        width: 80px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 12px;
+        background: #f1f5f9;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .book-cover-placeholder {
+        width: 80px;
+        height: 100px;
+        background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+    }
+
+    .book-info-summary {
+        flex: 1;
+    }
+
+    .book-title-summary {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e2a32;
+        margin-bottom: 0.25rem;
+    }
+
+    .book-author-summary {
+        font-size: 0.8rem;
+        color: #5b6e7c;
+        margin-bottom: 0.5rem;
+    }
+
+    .book-price-summary {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f3b2c;
+    }
+
+    .price-breakdown {
+        padding: 1rem 1.5rem;
+        background: #fefdf8;
+    }
+
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+        color: #4a5b6e;
+    }
+
+    .price-row.total {
+        border-top: 2px dashed #e2e8f0;
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #1e2a32;
+    }
+
+    /* New Address Form Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 28px;
+        max-width: 500px;
+        width: 90%;
+        padding: 1.8rem;
+        position: relative;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-header h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #94a3b8;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #2c3e50;
+        margin-bottom: 0.4rem;
+    }
+
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #2c7a5e;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .modal-buttons button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 40px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-save-address {
+        background: #1e5a44;
+        color: white;
+    }
+
+    .btn-cancel-modal {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    /* Form Card - RIGHT */
+    .order-form-card {
+        flex: 0.9;
+        min-width: 300px;
+        background: #ffffff;
+        border-radius: 28px;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+        padding: 1.8rem;
+        border: 1px solid #eef2f6;
+        height: fit-content;
+    }
+
+    .selected-address-display {
+        background: #f0fdf4;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #bbf7d0;
+    }
+
+    .selected-address-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #166534;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-confirm {
+        width: 100%;
+        background: linear-gradient(135deg, #1e5a44, #0f3b2c);
+        color: white;
+        border: none;
+        padding: 14px 24px;
+        border-radius: 48px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 1rem;
+    }
+
+    .btn-confirm:hover:not(:disabled) {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #154e3b, #0a2e22);
+        box-shadow: 0 8px 20px rgba(30, 90, 68, 0.3);
+    }
+
+    .btn-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .secure-note {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.7rem;
+        color: #7f8c8d;
+    }
+
+    /* Loading Overlay for redirect */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #1e5a44;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    @media (max-width: 1000px) {
+        .order-grid {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="order-container">
+    <div class="order-header">
+        <h2>
+            <i class="fas fa-clipboard-list"></i> 
+            Complete Your Order
+        </h2>
+        <p style="color: #5b6e7c; margin-top: 0.5rem;">Select a saved address or add a new one</p>
+    </div>
+
+    <div class="order-grid">
+        <!-- LEFT: Saved Addresses Section -->
+        <div class="saved-addresses-section">
+            <div class="section-header">
+                <h3>
+                    <i class="fas fa-address-book"></i>
+                    Saved Addresses
+                </h3>
+                <button type="button" class="btn-add-address" onclick="openAddressModal()">
+                    <i class="fas fa-plus"></i> New Address
+                </button>
+            </div>
+            <div class="address-list" id="addressListContainer">
+                <div class="empty-addresses">
+                    <i class="fas fa-map-marker-alt" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                    No saved addresses yet.<br>Click "New Address" to add one.
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: Order Summary -->
+        <div class="order-summary">
+            <div class="summary-header">
+                <h3>
+                    <i class="fas fa-shopping-bag"></i>
+                    Order Summary
+                </h3>
+            </div>
+            <div class="book-preview">
+                {% if book.image and book.image.url %}
+                    <img src="{{ book.image.url }}" class="book-cover" alt="{{ book.title }}">
+                {% else %}
+                    <div class="book-cover-placeholder">
+                        <i class="fas fa-book" style="font-size: 2rem; color: #cbd5e1;"></i>
+                    </div>
+                {% endif %}
+                <div class="book-info-summary">
+                    <div class="book-title-summary">{{ book.title }}</div>
+                    <div class="book-author-summary">
+                        <i class="fas fa-user-pen"></i> {{ book.author }}
+                    </div>
+                    <div class="book-price-summary">₹{{ book.price }}</div>
+                </div>
+            </div>
+            <div class="price-breakdown">
+                <div class="price-row">
+                    <span>Book Price</span>
+                    <span>₹{{ book.price }}</span>
+                </div>
+                <div class="price-row">
+                    <span>Delivery Charges</span>
+                    <span style="color: #2b6e3c;">Free</span>
+                </div>
+                <div class="price-row total">
+                    <span>Total Amount</span>
+                    <span style="color: #0f3b2c;">₹{{ book.price }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Order Form with selected address -->
+        <div class="order-form-card">
+            <div class="selected-address-display" id="selectedAddressDisplay">
+                <div class="selected-address-label">
+                    <i class="fas fa-map-pin"></i> SELECTED DELIVERY ADDRESS
+                </div>
+                <div id="selectedAddressText" style="font-size: 0.9rem; color: #166534;">
+                    No address selected
+                </div>
+            </div>
+
+            <button class="btn-confirm" id="proceedToPaymentBtn" disabled>
+                <i class="fas fa-arrow-right"></i> Proceed to Payment
+            </button>
+
+            <div class="secure-note">
+                <i class="fas fa-lock"></i>
+                Secure transaction • You will be redirected to payment page
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Adding/Editing Address -->
+<div id="addressModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="modalTitle">Add New Address</h4>
+            <button class="close-modal" onclick="closeAddressModal()">&times;</button>
+        </div>
+        <form id="addressForm" onsubmit="return false;">
+            <input type="hidden" id="editAddressId" value="">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="modalName" required placeholder="Recipient full name">
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="modalAddress" required rows="3" placeholder="House/Flat No., Building, Street, Landmark"></textarea>
+            </div>
+            <div class="form-group">
+                <label>City</label>
+                <input type="text" id="modalCity" required placeholder="City">
+            </div>
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" id="modalState" required placeholder="State">
+            </div>
+            <div class="form-group">
+                <label>Pincode</label>
+                <input type="text" id="modalPincode" required placeholder="Pincode" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="modalPhone" required placeholder="10-digit mobile number">
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel-modal" onclick="closeAddressModal()">Cancel</button>
+                <button type="submit" class="btn-save-address">Save Address</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay for redirect -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Processing your order...</div>
+</div>
+
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<script>
+    // Address Management System
+    let addresses = [];
+    let selectedAddressId = null;
+
+    // Load addresses from localStorage
+    function loadAddresses() {
+        const stored = localStorage.getItem('bookstore_addresses');
+        if (stored) {
+            try {
+                addresses = JSON.parse(stored);
+            } catch(e) { addresses = []; }
+        }
+        if (!addresses || !Array.isArray(addresses)) {
+            addresses = [];
+        }
+        renderAddressList();
+    }
+
+    // Save addresses to localStorage
+    function saveAddresses() {
+        localStorage.setItem('bookstore_addresses', JSON.stringify(addresses));
+        renderAddressList();
+    }
+
+    // Render address list
+    function renderAddressList() {
+        const container = document.getElementById('addressListContainer');
+        if (!container) return;
+
+        if (addresses.length === 0) {
+            container.innerHTML = `
+                <div class="empty-addresses">
+                    <i class="fas fa-map-marker-alt" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                    No saved addresses yet.<br>Click "New Address" to add one.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = addresses.map(addr => `
+            <div class="address-card ${selectedAddressId === addr.id ? 'selected' : ''}" onclick="selectAddress(${addr.id})">
+                <div class="address-name">
+                    <i class="fas fa-user-circle"></i> ${escapeHtml(addr.name)}
+                </div>
+                <div class="address-detail">
+                    <i class="fas fa-location-dot"></i> ${escapeHtml(addr.address)}, ${escapeHtml(addr.city)}, ${escapeHtml(addr.state)} - ${escapeHtml(addr.pincode)}
+                </div>
+                <div class="address-detail">
+                    <i class="fas fa-phone"></i> ${escapeHtml(addr.phone)}
+                </div>
+                <div class="address-actions">
+                    <button class="edit-address-btn" onclick="event.stopPropagation(); editAddress(${addr.id})">
+                        <i class="fas fa-pen"></i> Edit
+                    </button>
+                    <button class="delete-address-btn" onclick="event.stopPropagation(); deleteAddress(${addr.id})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Select an address for delivery
+    function selectAddress(id) {
+        selectedAddressId = id;
+        const address = addresses.find(a => a.id === id);
+        if (address) {
+            const fullAddress = `${address.name}, ${address.address}, ${address.city}, ${address.state} - ${address.pincode}`;
+            document.getElementById('selectedAddressText').innerHTML = `
+                <strong>${escapeHtml(address.name)}</strong><br>
+                ${escapeHtml(address.address)}, ${escapeHtml(address.city)}, ${escapeHtml(address.state)} - ${escapeHtml(address.pincode)}<br>
+                <i class="fas fa-phone"></i> ${escapeHtml(address.phone)}
+            `;
+            
+            // Store address in sessionStorage for payment page
+            sessionStorage.setItem('deliveryAddress', fullAddress);
+            sessionStorage.setItem('deliveryPhone', address.phone);
+            sessionStorage.setItem('deliveryName', address.name);
+            
+            document.getElementById('proceedToPaymentBtn').disabled = false;
+        }
+        renderAddressList();
+    }
+
+    // Open modal for new address
+    function openAddressModal(editId = null) {
+        const modal = document.getElementById('addressModal');
+        const modalTitle = document.getElementById('modalTitle');
+        
+        if (editId) {
+            const address = addresses.find(a => a.id === editId);
+            if (address) {
+                modalTitle.textContent = 'Edit Address';
+                document.getElementById('editAddressId').value = address.id;
+                document.getElementById('modalName').value = address.name;
+                document.getElementById('modalAddress').value = address.address;
+                document.getElementById('modalCity').value = address.city;
+                document.getElementById('modalState').value = address.state;
+                document.getElementById('modalPincode').value = address.pincode;
+                document.getElementById('modalPhone').value = address.phone;
+            }
+        } else {
+            modalTitle.textContent = 'Add New Address';
+            document.getElementById('editAddressId').value = '';
+            document.getElementById('addressForm').reset();
+        }
+        modal.style.display = 'flex';
+    }
+
+    function editAddress(id) {
+        openAddressModal(id);
+    }
+
+    function deleteAddress(id) {
+        if (confirm('Are you sure you want to delete this address?')) {
+            addresses = addresses.filter(a => a.id !== id);
+            if (selectedAddressId === id) {
+                selectedAddressId = null;
+                document.getElementById('selectedAddressText').innerHTML = 'No address selected';
+                document.getElementById('proceedToPaymentBtn').disabled = true;
+                sessionStorage.removeItem('deliveryAddress');
+                sessionStorage.removeItem('deliveryPhone');
+                sessionStorage.removeItem('deliveryName');
+            }
+            saveAddresses();
+        }
+    }
+
+    function closeAddressModal() {
+        document.getElementById('addressModal').style.display = 'none';
+        document.getElementById('addressForm').reset();
+        document.getElementById('editAddressId').value = '';
+    }
+
+    // Save address from modal
+    function saveAddressFromModal() {
+        const editId = document.getElementById('editAddressId').value;
+        const name = document.getElementById('modalName').value.trim();
+        const address = document.getElementById('modalAddress').value.trim();
+        const city = document.getElementById('modalCity').value.trim();
+        const state = document.getElementById('modalState').value.trim();
+        const pincode = document.getElementById('modalPincode').value.trim();
+        const phone = document.getElementById('modalPhone').value.trim();
+
+        if (!name || !address || !city || !state || !pincode || !phone) {
+            alert('Please fill all fields');
+            return false;
+        }
+
+        if (phone.length < 10) {
+            alert('Please enter a valid 10-digit phone number');
+            return false;
+        }
+
+        if (editId) {
+            const index = addresses.findIndex(a => a.id == editId);
+            if (index !== -1) {
+                addresses[index] = {
+                    id: parseInt(editId),
+                    name, address, city, state, pincode, phone
+                };
+            }
+        } else {
+            const newId = Date.now();
+            addresses.push({
+                id: newId,
+                name, address, city, state, pincode, phone
+            });
+        }
+
+        saveAddresses();
+        closeAddressModal();
+        
+        const newAddressId = editId ? parseInt(editId) : addresses[addresses.length - 1].id;
+        selectAddress(newAddressId);
+        
+        return true;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Proceed to payment - using the correct URL pattern 'pay'
+    document.getElementById('proceedToPaymentBtn').addEventListener('click', function() {
+        if (!selectedAddressId) {
+            alert('Please select a delivery address');
+            return;
+        }
+        
+        // Show loading
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = 'flex';
+        
+        // Redirect to payment page using the correct URL pattern 'pay'
+        setTimeout(function() {
+            window.location.href = "/pay/{{ book.id }}/";
+        }, 500);
+    });
+
+    // Address form submission
+    document.getElementById('addressForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveAddressFromModal();
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addressModal');
+        if (event.target === modal) {
+            closeAddressModal();
+        }
+    }
+
+    // Initialize
+    loadAddresses();
+</script>
+
+{% endblock %}

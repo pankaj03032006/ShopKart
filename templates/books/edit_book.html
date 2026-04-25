@@ -1,0 +1,968 @@
+{% extends 'books/base.html' %}
+
+{% block title %}Edit Book | Shopcart{% endblock %}
+
+{% block content %}
+<style>
+    .edit-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);
+    }
+
+    .edit-card {
+        max-width: 900px;
+        width: 100%;
+        background: white;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        padding: 30px;
+        text-align: center;
+        color: white;
+    }
+
+    .card-header i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .card-header p {
+        margin: 8px 0 0;
+        opacity: 0.9;
+        font-size: 0.85rem;
+    }
+
+    .card-body {
+        padding: 35px;
+        max-height: 75vh;
+        overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .card-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .card-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    .card-body::-webkit-scrollbar-thumb {
+        background: #0a3d2e;
+        border-radius: 10px;
+    }
+
+    .form-section {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #eef2f6;
+        transition: all 0.2s;
+    }
+
+    .form-section:hover {
+        border-color: #c8e6d9;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a3d2e;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-section-title i {
+        font-size: 1.2rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        flex: 1;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .form-group label i {
+        margin-right: 6px;
+        color: #0a3d2e;
+    }
+
+    .required-star {
+        color: #e74c3c;
+        margin-left: 3px;
+    }
+
+    .optional-badge {
+        font-size: 0.65rem;
+        background: #e2e8f0;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-left: 8px;
+        font-weight: normal;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px 12px 40px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+    }
+
+    textarea.form-control {
+        padding: 12px 15px;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    select.form-control {
+        cursor: pointer;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #0a3d2e;
+        box-shadow: 0 0 0 3px rgba(10, 61, 46, 0.1);
+    }
+
+    .form-control:focus + i {
+        color: #0a3d2e;
+    }
+
+    /* Stock Status Box */
+    .stock-status-box {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-left: 4px solid #0a3d2e;
+    }
+
+    .stock-status-box h4 {
+        margin-bottom: 12px;
+        color: #0a3d2e;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stock-badge-large {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .stock-in {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .stock-low {
+        background: #fff3e0;
+        color: #ef6c00;
+    }
+
+    .stock-out {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .stock-inactive {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    /* Quick Stock Buttons */
+    .quick-stock-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .quick-stock-btn {
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #5b6e7c;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-stock-btn:hover {
+        background: #0a3d2e;
+        color: white;
+        border-color: #0a3d2e;
+    }
+
+    /* Current Image Preview */
+    .current-image {
+        margin-top: 10px;
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 16px;
+        text-align: center;
+    }
+
+    .current-image h4 {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        color: #0a3d2e;
+    }
+
+    .current-image img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 5px;
+        background: white;
+    }
+
+    /* File Upload */
+    .file-upload {
+        position: relative;
+        margin-top: 8px;
+    }
+
+    .file-upload-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .file-upload-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .file-upload-label:hover {
+        border-color: #0a3d2e;
+        background: #f0fdf4;
+    }
+
+    .file-upload-label i {
+        font-size: 1.5rem;
+        color: #0a3d2e;
+    }
+
+    .file-upload-label span {
+        color: #5b6e7c;
+        font-size: 0.85rem;
+    }
+
+    .file-name {
+        font-size: 0.75rem;
+        color: #5b6e7c;
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    /* Image Preview */
+    .image-preview {
+        margin-top: 15px;
+        text-align: center;
+        display: none;
+    }
+
+    .image-preview img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 5px;
+        background: white;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        margin-top: 25px;
+    }
+
+    .btn-update, .btn-cancel {
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        color: white;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(10, 61, 46, 0.3);
+    }
+
+    .btn-cancel {
+        background: #f8fafc;
+        color: #5b6e7c;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-cancel:hover {
+        background: #fee2e2;
+        color: #e74c3c;
+        border-color: #e74c3c;
+    }
+
+    /* Alert Messages */
+    .alert-message {
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-error {
+        background: #ffebee;
+        color: #c62828;
+        border-left: 4px solid #c62828;
+    }
+
+    .alert-success {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border-left: 4px solid #2e7d32;
+    }
+
+    .alert-info {
+        background: #e3f2fd;
+        color: #1565c0;
+        border-left: 4px solid #1565c0;
+    }
+
+    .help-text {
+        font-size: 0.7rem;
+        color: #5b6e7c;
+        margin-top: 5px;
+        display: block;
+    }
+
+    @media (max-width: 640px) {
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="card-header">
+            <i class="fas fa-edit"></i>
+            <h2>Edit Book</h2>
+            <p>Update your book details and manage stock</p>
+        </div>
+
+        <div class="card-body">
+            <!-- Display Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-message alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Current Stock Status Box -->
+            <div class="stock-status-box">
+                <h4><i class="fas fa-boxes"></i> Current Stock Status</h4>
+                {% if not book.is_active %}
+                    <div class="stock-badge-large stock-inactive">
+                        <i class="fas fa-eye-slash"></i> Inactive - Not available for sale
+                    </div>
+                    <p class="help-text" style="margin-top: 10px; color: #94a3b8;">
+                        <i class="fas fa-info-circle"></i> Activate the book to make it available for customers
+                    </p>
+                {% elif book.stock <= 0 %}
+                    <div class="stock-badge-large stock-out">
+                        <i class="fas fa-times-circle"></i> Out of Stock - No copies available
+                    </div>
+                    <p class="help-text" style="margin-top: 10px; color: #c62828;">
+                        <i class="fas fa-exclamation-triangle"></i> Add stock below to make this book available for purchase
+                    </p>
+                {% elif book.stock <= book.low_stock_threshold %}
+                    <div class="stock-badge-large stock-low">
+                        <i class="fas fa-exclamation-triangle"></i> Low Stock - Only {{ book.stock }} copies left
+                    </div>
+                    <p class="help-text" style="margin-top: 10px; color: #ef6c00;">
+                        <i class="fas fa-bell"></i> Consider restocking soon
+                    </p>
+                {% else %}
+                    <div class="stock-badge-large stock-in">
+                        <i class="fas fa-check-circle"></i> In Stock - {{ book.stock }} copies available
+                    </div>
+                {% endif %}
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" id="editBookForm">
+                {% csrf_token %}
+
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-info-circle"></i> Basic Information
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-heading"></i> Book Title
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-book"></i>
+                                <input type="text" 
+                                       name="title" 
+                                       id="title"
+                                       class="form-control" 
+                                       value="{{ book.title }}"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="author">
+                                <i class="fas fa-user-pen"></i> Author
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-user"></i>
+                                <input type="text" 
+                                       name="author" 
+                                       id="author"
+                                       class="form-control" 
+                                       value="{{ book.author }}"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="isbn">
+                                <i class="fas fa-barcode"></i> ISBN Number
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-barcode"></i>
+                                <input type="text" 
+                                       name="isbn" 
+                                       id="isbn"
+                                       class="form-control" 
+                                       value="{{ book.isbn|default:'' }}"
+                                       placeholder="ISBN (optional)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="language">
+                                <i class="fas fa-language"></i> Language
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-language"></i>
+                                <select name="language" id="language" class="form-control">
+                                    <option value="English" {% if book.language == 'English' %}selected{% endif %}>English</option>
+                                    <option value="Hindi" {% if book.language == 'Hindi' %}selected{% endif %}>Hindi</option>
+                                    <option value="Tamil" {% if book.language == 'Tamil' %}selected{% endif %}>Tamil</option>
+                                    <option value="Telugu" {% if book.language == 'Telugu' %}selected{% endif %}>Telugu</option>
+                                    <option value="Kannada" {% if book.language == 'Kannada' %}selected{% endif %}>Kannada</option>
+                                    <option value="Malayalam" {% if book.language == 'Malayalam' %}selected{% endif %}>Malayalam</option>
+                                    <option value="Bengali" {% if book.language == 'Bengali' %}selected{% endif %}>Bengali</option>
+                                    <option value="Marathi" {% if book.language == 'Marathi' %}selected{% endif %}>Marathi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Stock Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-tags"></i> Pricing & Stock
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">
+                                <i class="fas fa-rupee-sign"></i> Selling Price
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-rupee-sign"></i>
+                                <input type="number" 
+                                       name="price" 
+                                       id="price"
+                                       class="form-control" 
+                                       value="{{ book.price }}"
+                                       step="0.01"
+                                       min="0"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mrp">
+                                <i class="fas fa-tag"></i> MRP (Original Price)
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-tag"></i>
+                                <input type="number" 
+                                       name="mrp" 
+                                       id="mrp"
+                                       class="form-control" 
+                                       value="{{ book.mrp|default:'' }}"
+                                       step="0.01"
+                                       min="0"
+                                       placeholder="Optional">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stock">
+                                <i class="fas fa-boxes"></i> Stock Quantity
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-cubes"></i>
+                                <input type="number" 
+                                       name="stock" 
+                                       id="stock"
+                                       class="form-control" 
+                                       value="{{ book.stock }}"
+                                       min="0"
+                                       required>
+                            </div>
+                            <div class="quick-stock-buttons">
+                                <button type="button" class="quick-stock-btn" onclick="setStock(0)">Set to 0 (Out of Stock)</button>
+                                <button type="button" class="quick-stock-btn" onclick="setStock(1)">Set to 1</button>
+                                <button type="button" class="quick-stock-btn" onclick="setStock(5)">Set to 5</button>
+                                <button type="button" class="quick-stock-btn" onclick="setStock(10)">Set to 10</button>
+                                <button type="button" class="quick-stock-btn" onclick="setStock(20)">Set to 20</button>
+                                <button type="button" class="quick-stock-btn" onclick="setStock(50)">Set to 50</button>
+                                <button type="button" class="quick-stock-btn" onclick="addStock()">+ Add More</button>
+                            </div>
+                            <small class="help-text">
+                                <i class="fas fa-info-circle"></i> 
+                                {% if book.stock <= 0 %}
+                                    Set to 1 or more to make "In Stock"
+                                {% else %}
+                                    Current stock: {{ book.stock }} copies
+                                {% endif %}
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="low_stock_threshold">
+                                <i class="fas fa-bell"></i> Low Stock Alert Threshold
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-bell"></i>
+                                <input type="number" 
+                                       name="low_stock_threshold" 
+                                       id="low_stock_threshold"
+                                       class="form-control" 
+                                       value="{{ book.low_stock_threshold|default:5 }}"
+                                       min="1">
+                            </div>
+                            <small class="help-text">Get alert when stock falls below this number</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">
+                            <i class="fas fa-folder"></i> Category
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-folder"></i>
+                            <select name="category" id="category" class="form-control">
+                                <option value="">Select a category</option>
+                                <option value="Engineering" {% if book.category == 'Engineering' %}selected{% endif %}>📘 Engineering</option>
+                                <option value="School Books" {% if book.category == 'School Books' %}selected{% endif %}>📚 School Books</option>
+                                <option value="Competitive Exams" {% if book.category == 'Competitive Exams' %}selected{% endif %}>📖 Competitive Exams</option>
+                                <option value="Fiction" {% if book.category == 'Fiction' %}selected{% endif %}>🎭 Fiction</option>
+                                <option value="Non-Fiction" {% if book.category == 'Non-Fiction' %}selected{% endif %}>📕 Non-Fiction</option>
+                                <option value="Academic" {% if book.category == 'Academic' %}selected{% endif %}>🎓 Academic</option>
+                                <option value="Children's Books" {% if book.category == "Children's Books" %}selected{% endif %}>🧸 Children's Books</option>
+                                <option value="Others" {% if book.category == 'Others' %}selected{% endif %}>📌 Others</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="is_active">
+                            <i class="fas fa-toggle-on"></i> Book Status
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-eye"></i>
+                            <select name="is_active" id="is_active" class="form-control">
+                                <option value="on" {% if book.is_active %}selected{% endif %}>✅ Active (Available for sale)</option>
+                                <option value="off" {% if not book.is_active %}selected{% endif %}>⛔ Inactive (Hidden from store)</option>
+                            </select>
+                        </div>
+                        <small class="help-text">Inactive books won't be visible to customers</small>
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-align-left"></i> Description
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-file-alt"></i> Book Description
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-file-alt" style="top: 18px;"></i>
+                            <textarea name="description" 
+                                      id="description"
+                                      class="form-control" 
+                                      rows="5"
+                                      placeholder="Describe your book - condition, edition, key features, table of contents, etc.">{{ book.description|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book Cover Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-image"></i> Book Cover
+                    </div>
+
+                    <!-- Current Image -->
+                    {% if book.image and book.image.url %}
+                    <div class="current-image">
+                        <h4><i class="fas fa-image"></i> Current Book Cover</h4>
+                        <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                    </div>
+                    {% endif %}
+
+                    <!-- Update Image -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-upload"></i> Update Book Cover
+                            <span class="optional-badge">Optional</span>
+                        </label>
+                        <div class="file-upload">
+                            <input type="file" 
+                                   name="image" 
+                                   id="imageUpload" 
+                                   class="file-upload-input" 
+                                   accept="image/*">
+                            <div class="file-upload-label" onclick="document.getElementById('imageUpload').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Click to upload new image (optional)</span>
+                            </div>
+                            <div class="file-name" id="fileName">No file chosen</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            <img id="previewImg" src="#" alt="Preview">
+                        </div>
+                        <small class="help-text">Accepted formats: JPG, PNG, JPEG. Max size: 5MB</small>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn-update" id="submitBtn">
+                        <i class="fas fa-save"></i> Update Book
+                    </button>
+                    <a href="{% url 'accounts:seller_dashboard' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Quick stock functions
+    function setStock(value) {
+        const stockInput = document.getElementById('stock');
+        if (stockInput) {
+            stockInput.value = value;
+            stockInput.dispatchEvent(new Event('input'));
+            // Show feedback
+            const statusBox = document.querySelector('.stock-status-box');
+            if (value <= 0) {
+                showTemporaryMessage('Stock set to 0 - Book will be Out of Stock', 'warning');
+            } else {
+                showTemporaryMessage(`Stock set to ${value} copies`, 'success');
+            }
+        }
+    }
+
+    function addStock() {
+        const currentStock = parseInt(document.getElementById('stock').value) || 0;
+        const addAmount = prompt("Enter number of copies to add:", "1");
+        if (addAmount && !isNaN(parseInt(addAmount))) {
+            const newStock = currentStock + parseInt(addAmount);
+            document.getElementById('stock').value = newStock;
+            showTemporaryMessage(`Added ${addAmount} copies. New stock: ${newStock}`, 'success');
+        }
+    }
+
+    function showTemporaryMessage(message, type) {
+        const container = document.querySelector('.card-body');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert-message alert-${type === 'success' ? 'success' : 'info'}`;
+        alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+        container.insertBefore(alertDiv, container.firstChild);
+        setTimeout(() => alertDiv.remove(), 2000);
+    }
+
+    // File upload preview
+    const imageUpload = document.getElementById('imageUpload');
+    const fileName = document.getElementById('fileName');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+
+    if (imageUpload) {
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload an image file (JPEG, PNG, etc.)');
+                    this.value = '';
+                    fileName.textContent = 'No file chosen';
+                    imagePreview.style.display = 'none';
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    this.value = '';
+                    fileName.textContent = 'No file chosen';
+                    imagePreview.style.display = 'none';
+                    return;
+                }
+                
+                // Show file name
+                fileName.textContent = file.name;
+                
+                // Show image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = 'No file chosen';
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+
+    // Price validation
+    const priceInput = document.getElementById('price');
+    const mrpInput = document.getElementById('mrp');
+    
+    if (priceInput) {
+        priceInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 100000) this.value = 100000;
+        });
+    }
+    
+    if (mrpInput) {
+        mrpInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 100000) this.value = 100000;
+        });
+    }
+
+    // Stock validation
+    const stockInput = document.getElementById('stock');
+    if (stockInput) {
+        stockInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 10000) this.value = 10000;
+        });
+    }
+
+    // Form validation with loading state
+    const form = document.getElementById('editBookForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+
+            if (!title) {
+                e.preventDefault();
+                alert('Please enter the book title');
+                document.getElementById('title').focus();
+                return false;
+            }
+
+            if (!author) {
+                e.preventDefault();
+                alert('Please enter the author name');
+                document.getElementById('author').focus();
+                return false;
+            }
+
+            if (!price || price <= 0) {
+                e.preventDefault();
+                alert('Please enter a valid price');
+                document.getElementById('price').focus();
+                return false;
+            }
+
+            if (stock < 0) {
+                e.preventDefault();
+                alert('Stock cannot be negative');
+                document.getElementById('stock').focus();
+                return false;
+            }
+
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Updating...';
+            submitBtn.disabled = true;
+            
+            return true;
+        });
+    }
+
+    // Add focus effects
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            const icon = this.parentElement.querySelector('i');
+            if (icon) icon.style.color = '#0a3d2e';
+        });
+        input.addEventListener('blur', function() {
+            const icon = this.parentElement.querySelector('i');
+            if (icon && !this.value) icon.style.color = '#94a3b8';
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,803 @@
+from django.shortcuts import render, get_object_or_404
+from .models import Book
+from django.shortcuts import render, redirect
+from .forms import BookForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+
+
+
+
+from django.db.models import Q
+from .models import Book
+
+def home(request):
+    query = request.GET.get('q')
+    category = request.GET.get('category')
+    sort = request.GET.get('sort')   # ✅ inside function
+
+    books = Book.objects.all()
+
+    # 🔍 SEARCH
+    if query:
+        books = books.filter(
+            Q(title__icontains=query) |
+            Q(author__icontains=query)
+        )
+
+    # 📂 CATEGORY FILTER
+    if category:
+        books = books.filter(category=category)
+
+    # 🔽 SORTING
+    if sort == 'low':
+        books = books.order_by('price')
+    elif sort == 'high':
+        books = books.order_by('-price')
+
+    return render(request, 'books/home.html', {'books': books})
+from django.shortcuts import get_object_or_404, render
+from django.db.models import Q  # Import Q for complex queries
+from .models import Book
+
+def book_detail(request, id):
+    book = get_object_or_404(Book, id=id)
+    
+    # Get related books based on same category or same author
+    related_books = Book.objects.filter(
+        Q(category=book.category) | Q(author=book.author)
+    ).exclude(id=book.id).distinct()[:8]  # Limit to 8 books
+    
+    context = {
+        'book': book,
+        'related_books': related_books,
+    }
+    return render(request, 'books/book_detail.html', context)
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import BookForm
+
+@login_required
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            book = form.save(commit=False)
+            book.seller = request.user
+            book.save()
+            return redirect('home')
+    else:
+        form = BookForm()
+
+    return render(request, 'books/add_book.html', {'form': form})
+
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            return render(request, 'accounts/login.html', {'error': 'Invalid credentials'})
+
+    return render(request, 'accounts/login.html')
+
+
+   
+
+from django.contrib.auth.decorators import login_required
+from .models import Book
+from orders.models import Order  # Import Order from orders app
+
+@login_required
+def my_orders(request):
+    orders = Order.objects.filter(user=request.user).order_by('-id')
+    return render(request, 'books/my_orders.html', {'orders': orders})
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Book
+from orders.models import Order  # Import Order from orders app
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def place_order(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    if request.method == 'POST':
+        address = request.POST.get('address')
+        phone = request.POST.get('phone')
+
+        order = Order.objects.create(
+            user=request.user,
+            book=book,
+            address=address,
+            phone=phone
+        )
+
+        return redirect('order_success', order_id=order.id)
+
+    return render(request, 'orders/place_order.html', {'book': book})
+@login_required
+def order_success(request, order_id):
+    order = Order.objects.get(id=order_id)
+    return render(request, 'orders/order_success.html', {'order': order})
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Only allow cancel if not delivered
+    if order.status != 'Delivered':
+        order.status = 'Cancelled'
+        order.save()
+
+    return redirect('my_orders')
+import razorpay
+from django.conf import settings
+
+def payment_page(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    payment = client.order.create({
+        "amount": int(book.price * 100),
+        "currency": "INR",
+        "payment_capture": 1
+    })
+
+    return render(request, 'books/payment.html', {
+        'book': book,
+        'payment': payment,
+        'razorpay_key_id': settings.RAZORPAY_KEY_ID   # ✅ MUST BE HERE
+    })
+
+from django.shortcuts import redirect, get_object_or_404
+from .models import Book
+from orders.models import Order  # Import Order from orders app
+from django.contrib.auth.decorators import login_required
+
+
+from orders.models import Order
+from django.shortcuts import render, get_object_or_404
+from books.models import Book
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def payment_success(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    
+    # Get payment details from URL
+    payment_id = request.GET.get('payment_id')
+    order_id = request.GET.get('order_id')
+    signature = request.GET.get('signature')
+    
+    # Check if order already exists (from place_order)
+    order = Order.objects.filter(razorpay_order_id=order_id).first()
+    
+    if not order:
+        # Create new order if it doesn't exist
+        order = Order.objects.create(
+            user=request.user,
+            book=book,
+            quantity=1,
+            price=book.price,  # IMPORTANT: Add the price
+            address=request.session.get('delivery_address', 'Address not provided'),
+            phone=request.session.get('delivery_phone', 'Not provided'),
+            recipient_name=request.session.get('delivery_name', request.user.username),
+            payment_id=payment_id,
+            razorpay_order_id=order_id,
+            status='Processing'
+        )
+    else:
+        # Update existing order with payment info
+        order.payment_id = payment_id
+        order.status = 'Processing'
+        order.save()
+    
+    context = {
+        'book': book,
+        'order': order,
+        'payment_id': payment_id,
+    }
+    
+    return render(request, 'books/payment_success.html', context)
+from django.contrib.auth.decorators import login_required
+from .models import Book
+from orders.models import Order  # Import Order from orders app
+
+@login_required
+def seller_dashboard(request):
+    # Books added by this seller
+    books = Book.objects.filter(seller=request.user)
+
+    # Orders for seller's books
+    orders = Order.objects.filter(book__seller=request.user)
+
+    return render(request, 'books/seller_dashboard.html', {
+        'books': books,
+        'orders': orders
+    })
+@login_required
+def update_order_status(request, order_id):
+    order = Order.objects.get(id=order_id)
+
+    # Only seller can update
+    if order.book.seller != request.user:
+        return redirect('home')
+
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        order.status = status
+        order.save()
+
+    return redirect('seller_dashboard')
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from .models import Cart, Book
+
+from django.contrib import messages
+
+
+from django.shortcuts import redirect, get_object_or_404
+from .models import Book
+
+from django.shortcuts import redirect, get_object_or_404
+from .models import Book
+
+from django.shortcuts import redirect, get_object_or_404
+from .models import Book
+
+from django.shortcuts import redirect, get_object_or_404
+from .models import Book
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.contrib import messages
+from .models import Book
+
+def add_to_cart(request, book_id):
+    """Add a book to cart - supports both AJAX and regular POST"""
+    book = get_object_or_404(Book, id=book_id)
+    
+    # Get cart from session
+    cart = request.session.get('cart', {})
+    
+    # Ensure cart is a dictionary
+    if isinstance(cart, list):
+        cart = {}
+    
+    # Add or update quantity
+    book_id_str = str(book_id)
+    if book_id_str in cart:
+        cart[book_id_str] += 1
+    else:
+        cart[book_id_str] = 1
+    
+    # Save back to session
+    request.session['cart'] = cart
+    request.session.modified = True
+    
+    # Calculate total cart count
+    cart_count = sum(cart.values())
+    
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'message': f'{book.title} added to cart!',
+            'cart_count': cart_count,
+            'quantity': cart[book_id_str]
+        })
+    else:
+        messages.success(request, f'{book.title} added to cart successfully!')
+        return redirect('cart')
+
+def cart(request):
+    """Display cart page"""
+    cart = request.session.get('cart', {})
+    
+    # Fix: if cart is list convert to dictionary
+    if isinstance(cart, list):
+        cart = {}
+    
+    cart_items = []
+    total = 0
+    
+    for book_id, quantity in cart.items():
+        try:
+            book = Book.objects.get(id=book_id)
+            subtotal = book.price * quantity
+            total += subtotal
+            cart_items.append({
+                'book': book,
+                'quantity': quantity,
+                'subtotal': subtotal
+            })
+        except Book.DoesNotExist:
+            # Remove invalid book from cart
+            del cart[book_id]
+            request.session['cart'] = cart
+            continue
+    
+    return render(request, 'books/cart.html', {
+        'cart_items': cart_items,
+        'total': total
+    })
+
+def remove_from_cart(request, id):
+    """Remove item from cart"""
+    cart = request.session.get('cart', {})
+    
+    if str(id) in cart:
+        del cart[str(id)]
+    
+    request.session['cart'] = cart
+    request.session.modified = True
+    
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Calculate new total
+        new_total = 0
+        for book_id, quantity in cart.items():
+            try:
+                book = Book.objects.get(id=book_id)
+                new_total += book.price * quantity
+            except:
+                pass
+        return JsonResponse({
+            'success': True,
+            'message': 'Item removed from cart',
+            'cart_count': sum(cart.values()),
+            'subtotal': new_total
+        })
+    
+    return redirect('cart')
+
+def increase_quantity(request, id):
+    """Increase item quantity in cart"""
+    cart = request.session.get('cart', {})
+    book_id_str = str(id)
+    
+    if book_id_str in cart:
+        cart[book_id_str] += 1
+    
+    request.session['cart'] = cart
+    request.session.modified = True
+    
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        book = get_object_or_404(Book, id=id)
+        new_total = 0
+        for bid, qty in cart.items():
+            try:
+                b = Book.objects.get(id=bid)
+                new_total += b.price * qty
+            except:
+                pass
+        return JsonResponse({
+            'success': True,
+            'new_quantity': cart[book_id_str],
+            'item_total': book.price * cart[book_id_str],
+            'subtotal': new_total,
+            'cart_count': sum(cart.values())
+        })
+    
+    return redirect('cart')
+
+def decrease_quantity(request, id):
+    """Decrease item quantity in cart"""
+    cart = request.session.get('cart', {})
+    book_id_str = str(id)
+    
+    if book_id_str in cart:
+        cart[book_id_str] -= 1
+        if cart[book_id_str] <= 0:
+            del cart[book_id_str]
+    
+    request.session['cart'] = cart
+    request.session.modified = True
+    
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        new_total = 0
+        for bid, qty in cart.items():
+            try:
+                b = Book.objects.get(id=bid)
+                new_total += b.price * qty
+            except:
+                pass
+        
+        if book_id_str in cart:
+            book = get_object_or_404(Book, id=id)
+            return JsonResponse({
+                'success': True,
+                'new_quantity': cart[book_id_str],
+                'item_total': book.price * cart[book_id_str],
+                'subtotal': new_total,
+                'cart_count': sum(cart.values()),
+                'deleted': False
+            })
+        else:
+            return JsonResponse({
+                'success': True,
+                'deleted': True,
+                'subtotal': new_total,
+                'cart_count': sum(cart.values())
+            })
+    
+    return redirect('cart')
+from .models import Cart
+
+from orders.models import Order  # Import Order from orders app
+
+# def place_order(request):
+#     items = Cart.objects.filter(user=request.user)
+
+#     total = 0
+#     for item in items:
+#         total += item.book.price * item.quantity
+
+#     # create order
+#     Orders.objects.create(user=request.user, total_amount=total)
+
+#     # clear cart
+#     items.delete()
+
+#     return redirect('home')
+# from django.contrib.auth.models import User
+# from django.contrib import messages
+
+# def signup(request):
+#     if request.method == 'POST':
+#         username = request.POST['username']
+#         password = request.POST['password']
+
+#         if User.objects.filter(username=username).exists():
+#             messages.error(request, "Username already exists")
+#         else:
+#             User.objects.create_user(username=username, password=password)
+#             return redirect('login')
+
+#     return render(request, 'accounts/signup.html')
+from django.contrib.auth.decorators import login_required
+
+# @login_required
+# def saved_address(request):
+#     return render(request, 'books/saved_address.html')
+
+from django.contrib.auth.models import User
+from django.contrib import messages
+from .models import Seller
+
+def seller_signup(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+
+        # ✅ CHECK USERNAME
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists ❌")
+            return redirect('seller_signup')
+
+        # ✅ CREATE USER
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        # ✅ CREATE SELLER PROFILE
+        Seller.objects.create(
+            user=user,
+            phone=phone,
+            address=address
+        )
+
+        messages.success(request, "Seller account created ✅ Please login")
+        return redirect('seller_login')
+
+    return render(request, 'books/seller_signup.html')
+# from django.contrib.auth import authenticate, login
+# from django.contrib import messages
+# def seller_login(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+        
+#         if user is not None and hasattr(user, 'seller'):
+#             login(request, user)
+#             return redirect('seller_dashboard')
+#         else:
+#             messages.error(request, 'Invalid credentials or not a seller account')
+    
+#     return render(request, 'books/seller_login.html')
+
+
+@login_required
+def sell_book(request):
+    # Check if user is a seller
+    if not hasattr(request.user, 'seller'):
+        messages.error(request, 'Please register as a seller first')
+        return redirect('seller_signup')
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            title = request.POST.get('title')
+            author = request.POST.get('author')
+            price = request.POST.get('price')
+            category = request.POST.get('category')
+            description = request.POST.get('description')
+            image = request.FILES.get('image')
+            
+            # Validate required fields
+            if not title:
+                messages.error(request, 'Book title is required')
+                return render(request, 'books/sell_book.html')
+            
+            if not author:
+                messages.error(request, 'Author name is required')
+                return render(request, 'books/sell_book.html')
+            
+            if not price:
+                messages.error(request, 'Price is required')
+                return render(request, 'books/sell_book.html')
+            
+            if not image:
+                messages.error(request, 'Book image is required')
+                return render(request, 'books/sell_book.html')
+            
+            # Create the book
+            book = Book.objects.create(
+                title=title,
+                author=author,
+                price=price,
+                category=category,
+                description=description,
+                image=image,
+                seller=request.user   # Assign the logged-in user as seller
+            )
+            
+            messages.success(request, f'"{title}" has been successfully added to your store!')
+            return redirect('seller_dashboard')
+            
+        except Exception as e:
+            messages.error(request, f'Error uploading book: {str(e)}')
+            return render(request, 'books/sell_book.html')
+    
+    return render(request, 'books/sell_book.html')
+
+@login_required
+def seller_dashboard(request):
+    # Check if user is a seller
+    if not hasattr(request.user, 'seller'):
+        messages.error(request, 'You are not registered as a seller')
+        return redirect('seller_login')
+    
+    # Get all books where seller is the current user
+    books = Book.objects.filter(seller=request.user).order_by('-id')
+    
+    context = {
+        'books': books,
+        'total_books': books.count(),
+    }
+    return render(request, 'accounts/seller_dashboard.html', context)
+
+
+@login_required
+def delete_book(request, id):
+    # Get the book
+    book = get_object_or_404(Book, id=id)
+    
+    # Check if the logged-in user is the seller of this book
+    if book.seller != request.user:
+        messages.error(request, 'You are not authorized to delete this book')
+        return redirect('seller_dashboard')
+    
+    # Delete the book
+    book_title = book.title
+    book.delete()
+    messages.success(request, f'"{book_title}" has been deleted successfully')
+    
+    return redirect('seller_dashboard')
+from django.shortcuts import get_object_or_404
+
+@login_required
+def edit_book(request, id):
+    book = get_object_or_404(Book, id=id)
+
+    # security check
+    if book.seller != request.user.seller:
+        return redirect('seller_dashboard')
+
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('seller_dashboard')
+    else:
+        form = BookForm(instance=book)
+
+    return render(request, 'books/edit_book.html', {'form': form})
+def is_seller(user):
+    return hasattr(user, 'seller')
+
+from django.http import JsonResponse
+from django.db.models import Q
+
+def search_suggestions(request):
+    query = request.GET.get('q')
+
+    books = Book.objects.filter(
+        Q(title__icontains=query) |
+        Q(author__icontains=query)
+    )[:5]
+
+    data = []
+    for book in books:
+        data.append({
+            'id': book.id,
+            'title': book.title
+        })
+
+    return JsonResponse(data, safe=False)
+
+from django.http import JsonResponse
+
+def check_auth(request):
+    """Check if user is authenticated"""
+    return JsonResponse({'is_authenticated': request.user.is_authenticated})
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.contrib import messages
+from .models import Book, Address
+import json
+
+# ... your existing views ...
+
+@login_required
+def saved_addresses(request):
+    """Display user's saved addresses"""
+    addresses = Address.objects.filter(user=request.user)
+    return render(request, 'books/saved_addresses.html', {'addresses': addresses})
+
+@login_required
+def add_address(request):
+    """Add a new address via AJAX"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            # If this is the first address, make it default
+            is_first = not Address.objects.filter(user=request.user).exists()
+            
+            address = Address.objects.create(
+                user=request.user,
+                name=data.get('name'),
+                address=data.get('address'),
+                city=data.get('city'),
+                state=data.get('state'),
+                pincode=data.get('pincode'),
+                phone=data.get('phone'),
+                email=data.get('email', ''),
+                is_default=is_first
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Address saved successfully!',
+                'address': {
+                    'id': address.id,
+                    'name': address.name,
+                    'address': address.address,
+                    'city': address.city,
+                    'state': address.state,
+                    'pincode': address.pincode,
+                    'phone': address.phone,
+                    'email': address.email,
+                    'is_default': address.is_default
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def edit_address(request, address_id):
+    """Edit an existing address"""
+    if request.method == 'POST':
+        try:
+            address = get_object_or_404(Address, id=address_id, user=request.user)
+            data = json.loads(request.body)
+            
+            address.name = data.get('name', address.name)
+            address.address = data.get('address', address.address)
+            address.city = data.get('city', address.city)
+            address.state = data.get('state', address.state)
+            address.pincode = data.get('pincode', address.pincode)
+            address.phone = data.get('phone', address.phone)
+            address.email = data.get('email', address.email)
+            address.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Address updated successfully!'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def delete_address(request, address_id):
+    """Delete an address"""
+    if request.method == 'POST':
+        try:
+            address = get_object_or_404(Address, id=address_id, user=request.user)
+            address.delete()
+            return JsonResponse({'success': True, 'message': 'Address deleted successfully!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def set_default_address(request, address_id):
+    """Set an address as default"""
+    if request.method == 'POST':
+        try:
+            # Remove default from all user's addresses
+            Address.objects.filter(user=request.user).update(is_default=False)
+            
+            # Set selected as default
+            address = get_object_or_404(Address, id=address_id, user=request.user)
+            address.is_default = True
+            address.save()
+            
+            return JsonResponse({'success': True, 'message': 'Default address updated!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def get_addresses(request):
+    """Get all addresses for the current user (AJAX)"""
+    addresses = Address.objects.filter(user=request.user)
+    addresses_data = []
+    for addr in addresses:
+        addresses_data.append({
+            'id': addr.id,
+            'name': addr.name,
+            'address': addr.address,
+            'city': addr.city,
+            'state': addr.state,
+            'pincode': addr.pincode,
+            'phone': addr.phone,
+            'email': addr.email,
+            'is_default': addr.is_default
+        })
+    return JsonResponse({'success': True, 'addresses': addresses_data})

@@ -1,0 +1,526 @@
+{% extends 'books/base.html' %}
+
+{% block title %}{% if existing_review %}Edit Your Review{% else %}Write a Review{% endif %} | Shopcart{% endblock %}
+
+{% block content %}
+<style>
+    .review-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        padding: 30px;
+        text-align: center;
+        color: white;
+    }
+
+    .card-header i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .card-header p {
+        margin: 8px 0 0;
+        opacity: 0.9;
+        font-size: 0.85rem;
+    }
+
+    .card-body {
+        padding: 35px;
+    }
+
+    .book-info {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        align-items: center;
+    }
+
+    .book-cover {
+        width: 80px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .book-details {
+        flex: 1;
+    }
+
+    .book-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: #1e2a32;
+    }
+
+    .book-author {
+        font-size: 0.85rem;
+        color: #5b6e7c;
+    }
+
+    .verified-badge {
+        display: inline-block;
+        background: #e8f5e9;
+        color: #2e7d32;
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-top: 8px;
+    }
+
+    .rating-section {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .rating-label {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        color: #2c3e50;
+    }
+
+    .stars-input {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 0.5rem;
+    }
+
+    .star-rating {
+        font-size: 2.5rem;
+        cursor: pointer;
+        color: #cbd5e1;
+        transition: all 0.2s;
+    }
+
+    .star-rating:hover,
+    .star-rating.active {
+        color: #fbbf24;
+    }
+
+    .rating-feedback {
+        font-size: 0.8rem;
+        color: #5b6e7c;
+        margin-top: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+
+    .form-group label i {
+        margin-right: 6px;
+        color: #0a3d2e;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #0a3d2e;
+        box-shadow: 0 0 0 3px rgba(10, 61, 46, 0.1);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .char-count {
+        text-align: right;
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, #fb641b, #f4501b);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(251, 100, 27, 0.3);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-cancel {
+        display: inline-block;
+        margin-top: 1rem;
+        text-align: center;
+        width: 100%;
+        color: #5b6e7c;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        color: #e74c3c;
+    }
+
+    .info-box {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.85rem;
+        color: #1565c0;
+    }
+
+    .info-box i {
+        font-size: 1.2rem;
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.75rem;
+        margin-top: 5px;
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .card-body {
+            padding: 25px;
+        }
+        .star-rating {
+            font-size: 1.8rem;
+        }
+        .book-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        .book-cover {
+            margin: 0 auto;
+        }
+    }
+</style>
+
+<div class="review-container">
+    <div class="review-card">
+        <div class="card-header">
+            <i class="fas fa-star"></i>
+            <h2>{% if existing_review %}Edit Your Review{% else %}Write a Review{% endif %}</h2>
+            <p>Share your reading experience with other book lovers</p>
+        </div>
+
+        <div class="card-body">
+            <!-- Book Info -->
+            <div class="book-info">
+                {% if book.image and book.image.url %}
+                    <img src="{{ book.image.url }}" class="book-cover" alt="{{ book.title }}">
+                {% else %}
+                    <div style="width:80px; height:100px; background:#f1f5f9; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-book" style="font-size:2rem; color:#cbd5e1;"></i>
+                    </div>
+                {% endif %}
+                <div class="book-details">
+                    <div class="book-title">{{ book.title }}</div>
+                    <div class="book-author">by {{ book.author }}</div>
+                    <div class="verified-badge">
+                        <i class="fas fa-check-circle"></i> Verified Purchase
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <span>As a verified buyer, your honest review helps other customers make informed decisions.</span>
+            </div>
+
+            <form method="POST" id="reviewForm">
+                {% csrf_token %}
+
+                <!-- Rating Stars -->
+                <div class="rating-section">
+                    <label class="rating-label">
+                        <i class="fas fa-star" style="color: #fbbf24;"></i> Your Rating <span style="color: #e74c3c;">*</span>
+                    </label>
+                    <div class="stars-input">
+                        <i class="fas fa-star star-rating" data-value="1"></i>
+                        <i class="fas fa-star star-rating" data-value="2"></i>
+                        <i class="fas fa-star star-rating" data-value="3"></i>
+                        <i class="fas fa-star star-rating" data-value="4"></i>
+                        <i class="fas fa-star star-rating" data-value="5"></i>
+                    </div>
+                    <input type="hidden" name="rating" id="ratingValue" value="{{ existing_review.rating|default:'' }}" required>
+                    <div class="rating-feedback" id="ratingFeedback">
+                        {% if not existing_review %}Click on a star to rate{% endif %}
+                    </div>
+                    <div id="ratingError" class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> Please select a rating
+                    </div>
+                </div>
+
+                <!-- Review Title -->
+                <div class="form-group">
+                    <label for="title">
+                        <i class="fas fa-heading"></i> Review Title
+                        <span style="color: #94a3b8; font-size: 0.7rem;">(Optional)</span>
+                    </label>
+                    <input type="text" name="title" id="title" class="form-control" 
+                           placeholder="e.g., Amazing book! Highly recommended" 
+                           value="{{ existing_review.title|default:'' }}">
+                    <div class="char-count">
+                        <span id="titleCount">0</span>/100 characters
+                    </div>
+                </div>
+
+                <!-- Review Comment -->
+                <div class="form-group">
+                    <label for="comment">
+                        <i class="fas fa-comment"></i> Your Review <span style="color: #e74c3c;">*</span>
+                    </label>
+                    <textarea name="comment" id="comment" class="form-control" 
+                              placeholder="What did you like or dislike about this book? Share your honest opinion..." 
+                              required>{{ existing_review.comment|default:'' }}</textarea>
+                    <div class="char-count">
+                        <span id="commentCount">0</span>/500 characters (minimum 20 characters)
+                    </div>
+                    <div id="commentError" class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> Please write a review (minimum 20 characters)
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> 
+                    {% if existing_review %}Update Review{% else %}Submit Review{% endif %}
+                </button>
+
+                <a href="{% url 'books:book_detail' book.id %}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Star rating functionality
+    const stars = document.querySelectorAll('.star-rating');
+    const ratingInput = document.getElementById('ratingValue');
+    const ratingFeedback = document.getElementById('ratingFeedback');
+    const ratingError = document.getElementById('ratingError');
+    
+    const ratingMessages = {
+        1: 'Poor - Not satisfied at all',
+        2: 'Fair - Could be better',
+        3: 'Good - Decent read',
+        4: 'Very Good - Enjoyed it',
+        5: 'Excellent - Loved it!'
+    };
+    
+    // Set initial rating if editing
+    {% if existing_review %}
+    const initialRating = {{ existing_review.rating }};
+    ratingInput.value = initialRating;
+    ratingFeedback.textContent = ratingMessages[initialRating] || '';
+    stars.forEach(star => {
+        const value = parseInt(star.dataset.value);
+        if (value <= initialRating) {
+            star.classList.add('active');
+        }
+    });
+    {% endif %}
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            ratingInput.value = value;
+            ratingFeedback.textContent = ratingMessages[value] || '';
+            ratingError.style.display = 'none';
+            
+            stars.forEach(s => {
+                const starValue = parseInt(s.dataset.value);
+                if (starValue <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const value = parseInt(this.dataset.value);
+            stars.forEach(s => {
+                const starValue = parseInt(s.dataset.value);
+                if (starValue <= value) {
+                    s.style.color = '#fbbf24';
+                } else {
+                    s.style.color = '#cbd5e1';
+                }
+            });
+        });
+        
+        star.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingInput.value);
+            stars.forEach(s => {
+                const starValue = parseInt(s.dataset.value);
+                if (currentRating && starValue <= currentRating) {
+                    s.style.color = '#fbbf24';
+                } else {
+                    s.style.color = '#cbd5e1';
+                }
+            });
+        });
+    });
+    
+    // Character count for title
+    const titleInput = document.getElementById('title');
+    const titleCount = document.getElementById('titleCount');
+    
+    if (titleInput) {
+        function updateTitleCount() {
+            const count = titleInput.value.length;
+            titleCount.textContent = count;
+            if (count > 100) {
+                titleInput.value = titleInput.value.substring(0, 100);
+                titleCount.textContent = 100;
+            }
+        }
+        titleInput.addEventListener('input', updateTitleCount);
+        updateTitleCount();
+    }
+    
+    // Character count for comment
+    const commentInput = document.getElementById('comment');
+    const commentCount = document.getElementById('commentCount');
+    const commentError = document.getElementById('commentError');
+    
+    if (commentInput) {
+        function updateCommentCount() {
+            const count = commentInput.value.length;
+            commentCount.textContent = count;
+            
+            if (count > 500) {
+                commentInput.value = commentInput.value.substring(0, 500);
+                commentCount.textContent = 500;
+            }
+            
+            if (count < 20 && count > 0) {
+                commentError.style.display = 'block';
+                commentInput.style.borderColor = '#e74c3c';
+            } else {
+                commentError.style.display = 'none';
+                commentInput.style.borderColor = '#e2e8f0';
+            }
+        }
+        commentInput.addEventListener('input', updateCommentCount);
+        updateCommentCount();
+    }
+    
+    // Form validation
+    const form = document.getElementById('reviewForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const rating = ratingInput.value;
+            const comment = commentInput.value.trim();
+            let hasError = false;
+            
+            // Validate rating
+            if (!rating || rating < 1 || rating > 5) {
+                ratingError.style.display = 'block';
+                hasError = true;
+            } else {
+                ratingError.style.display = 'none';
+            }
+            
+            // Validate comment
+            if (!comment || comment.length < 20) {
+                commentError.style.display = 'block';
+                commentInput.style.borderColor = '#e74c3c';
+                hasError = true;
+            } else {
+                commentError.style.display = 'none';
+                commentInput.style.borderColor = '#e2e8f0';
+            }
+            
+            if (hasError) {
+                e.preventDefault();
+                // Scroll to error
+                document.querySelector('.rating-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Submitting...';
+            return true;
+        });
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,1041 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8edf2 100%);
+        min-height: 100vh;
+        padding: 2rem 1.5rem;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Welcome Card */
+    .welcome-card {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        box-shadow: 0 10px 30px rgba(10, 61, 46, 0.2);
+    }
+
+    .welcome-text h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-text p {
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stats-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6d9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+
+    .stat-icon i {
+        font-size: 1.8rem;
+        color: #0a3d2e;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e2a32;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #5b6e7c;
+        margin-top: 0.25rem;
+    }
+
+    /* Low Stock Alert Banner */
+    .alert-banner {
+        background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+        border-left: 4px solid #ef6c00;
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .alert-banner-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .alert-banner i {
+        font-size: 1.5rem;
+        color: #ef6c00;
+    }
+
+    .alert-banner strong {
+        color: #ef6c00;
+    }
+
+    .alert-books-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .alert-book-tag {
+        background: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #ef6c00;
+        font-weight: 500;
+    }
+
+    /* Section Tabs */
+    .section-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #eef2f6;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #5b6e7c;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .tab-btn:hover {
+        color: #0a3d2e;
+    }
+
+    .tab-btn.active {
+        color: #0a3d2e;
+    }
+
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #0a3d2e;
+    }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Orders Table */
+    .orders-table {
+        background: white;
+        border-radius: 20px;
+        overflow-x: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .orders-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .orders-table th,
+    .orders-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eef2f6;
+    }
+
+    .orders-table th {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #1e2a32;
+    }
+
+    .orders-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #fff3e0;
+        color: #ef6c00;
+    }
+
+    .status-processing {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .status-shipped {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-delivered {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .status-cancelled {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    /* Books Grid */
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .book-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .book-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .book-content {
+        padding: 1rem;
+    }
+
+    .book-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .book-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0a3d2e;
+        margin: 0.5rem 0;
+    }
+
+    /* Stock Status Badge */
+    .stock-status {
+        margin: 0.5rem 0;
+    }
+
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .stock-in-stock {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .stock-low-stock {
+        background: #fff3e0;
+        color: #ef6c00;
+    }
+
+    .stock-out-of-stock {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .stock-inactive {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 1rem;
+    }
+
+    .btn-edit, .btn-delete, .btn-toggle, .btn-stock {
+        flex: 1;
+        padding: 8px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-edit {
+        background: #f8fafc;
+        color: #0a3d2e;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-edit:hover {
+        background: #0a3d2e;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #fef2f2;
+        color: #e74c3c;
+        border: 1px solid #fee2e2;
+    }
+
+    .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-toggle {
+        background: #f8fafc;
+        color: #5b6e7c;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-toggle:hover {
+        background: #0a3d2e;
+        color: white;
+    }
+
+    .btn-stock {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #c8e6d9;
+    }
+
+    .btn-stock:hover {
+        background: #2e7d32;
+        color: white;
+    }
+
+    .add-book-btn {
+        background: #ffd700;
+        color: #0a3d2e;
+        padding: 10px 20px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .add-book-btn:hover {
+        background: #ffc107;
+        transform: translateY(-2px);
+    }
+
+    .search-input {
+        padding: 8px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        width: 250px;
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #0a3d2e;
+    }
+
+    .status-update {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        cursor: pointer;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    /* Quick Stats Row */
+    .quick-stats {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .quick-stat {
+        background: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .quick-stat i {
+        font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .books-grid {
+            grid-template-columns: 1fr;
+        }
+        .orders-table {
+            font-size: 0.8rem;
+        }
+        .orders-table th,
+        .orders-table td {
+            padding: 0.5rem;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .search-input {
+            width: 100%;
+        }
+        .quick-stats {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-wrapper">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-text">
+                <h2><i class="fas fa-store"></i> Welcome, {{ request.user.username }}!</h2>
+                <p><i class="fas fa-chart-line"></i> Manage your books and track orders from your seller dashboard</p>
+            </div>
+            <div>
+                <span class="stats-badge"><i class="fas fa-book"></i> Total Books: {{ total_books }}</span>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-value">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-value">₹{{ total_earnings|floatformat:0 }}</div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value">{{ pending_orders }}</div>
+                <div class="stat-label">Pending Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="stat-value">{{ shipped_orders }}</div>
+                <div class="stat-label">Shipped Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value">{{ delivered_orders }}</div>
+                <div class="stat-label">Delivered</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="stat-value">{{ cancelled_orders }}</div>
+                <div class="stat-label">Cancelled</div>
+            </div>
+        </div>
+
+        <!-- Stock Stats Row -->
+        <div class="quick-stats">
+            <div class="quick-stat">
+                <i class="fas fa-boxes" style="color: #2e7d32;"></i>
+                <span>In Stock: <strong>{{ in_stock_books }}</strong></span>
+            </div>
+            <div class="quick-stat">
+                <i class="fas fa-exclamation-triangle" style="color: #ef6c00;"></i>
+                <span>Low Stock: <strong>{{ low_stock_books }}</strong></span>
+            </div>
+            <div class="quick-stat">
+                <i class="fas fa-ban" style="color: #c62828;"></i>
+                <span>Out of Stock: <strong>{{ out_of_stock_books }}</strong></span>
+            </div>
+            <div class="quick-stat">
+                <i class="fas fa-eye-slash" style="color: #94a3b8;"></i>
+                <span>Inactive: <strong>{{ inactive_books }}</strong></span>
+            </div>
+         
+        </div>
+
+        <!-- Low Stock Alert Banner -->
+        {% if low_stock_alerts %}
+        <div class="alert-banner">
+            <div class="alert-banner-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Low Stock Alert!</strong>
+                    <span style="color: #5b6e7c;">The following books need restocking:</span>
+                </div>
+                <div class="alert-books-list">
+                    {% for book in low_stock_alerts %}
+                    <span class="alert-book-tag">
+                        {{ book.title }} (Only {{ book.stock }} left)
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="#" onclick="showTab('books'); return false;" style="color: #ef6c00; font-size: 0.8rem; font-weight: 600;">View All →</a>
+        </div>
+        {% endif %}
+
+        <!-- Section Tabs -->
+        <div class="section-tabs">
+            <button class="tab-btn active" onclick="showTab('orders')">📦 Orders</button>
+            <button class="tab-btn" onclick="showTab('books')">📚 My Books</button>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="ordersTab" class="tab-content active">
+            <div class="section-header">
+                <h3><i class="fas fa-shopping-bag"></i> Recent Orders</h3>
+                <input type="text" id="searchOrder" class="search-input" placeholder="Search orders...">
+            </div>
+
+            {% if orders %}
+            <div class="orders-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Book</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.recipient_name|default:order.user.username }}</td>
+                            <td>{{ order.book.title|truncatechars:30 }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td>₹{{ order.price }}</td>
+                            <td>
+                                <span class="status-badge status-{{ order.status|lower }}">
+                                    <i class="fas fa-{% if order.status == 'Pending' %}clock{% elif order.status == 'Processing' %}cog{% elif order.status == 'Shipped' %}truck{% elif order.status == 'Delivered' %}check-circle{% else %}ban{% endif %}"></i>
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at|date:"d M Y" }}</td>
+                            <td>
+                                <select class="status-update" data-order-id="{{ order.id }}" data-original-value="{{ order.status }}">
+                                    <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                    <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart"></i>
+                <h4>No orders yet</h4>
+                <p>When customers order your books, they will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Books Tab -->
+        <div id="booksTab" class="tab-content">
+            <div class="section-header">
+                <h3><i class="fas fa-book-open"></i> Your Book Collection</h3>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="searchBook" class="search-input" placeholder="Search books...">
+                    <a href="{% url 'books:sell_book' %}" class="add-book-btn">
+                        <i class="fas fa-plus"></i> Add Book
+                    </a>
+                </div>
+            </div>
+
+            <div class="books-grid" id="booksGrid">
+                {% for book in books %}
+                <div class="book-card" data-title="{{ book.title|lower }}" data-author="{{ book.author|lower }}">
+                    {% if book.image and book.image.url %}
+                        <img src="{{ book.image.url }}" class="book-image" alt="{{ book.title }}">
+                    {% else %}
+                        <div class="book-image" style="display: flex; align-items: center; justify-content: center; background: #f1f5f9;">
+                            <i class="fas fa-book" style="font-size: 3rem; color: #cbd5e1;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="book-content">
+                        <h4 class="book-title">{{ book.title }}</h4>
+                        <p style="font-size: 0.8rem; color: #5b6e7c;">{{ book.author }}</p>
+                        <div class="book-price">₹{{ book.price }}</div>
+                        
+                        <!-- Stock Status -->
+                        <div class="stock-status">
+                            {% if not book.is_active %}
+                                <span class="stock-badge stock-inactive">
+                                    <i class="fas fa-eye-slash"></i> Inactive
+                                </span>
+                            {% elif book.stock <= 0 %}
+                                <span class="stock-badge stock-out-of-stock">
+                                    <i class="fas fa-times-circle"></i> Out of Stock
+                                </span>
+                            {% elif book.stock <= book.low_stock_threshold %}
+                                <span class="stock-badge stock-low-stock">
+                                    <i class="fas fa-exclamation-triangle"></i> Low Stock: {{ book.stock }} left
+                                </span>
+                            {% else %}
+                                <span class="stock-badge stock-in-stock">
+                                    <i class="fas fa-check-circle"></i> In Stock: {{ book.stock }} copies
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-actions">
+                            <a href="{% url 'books:edit_book' book.id %}" class="btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            {% if book.stock <= 0 %}
+                            <button class="btn-stock" onclick="quickAddStock({{ book.id }}, this)">
+                                <i class="fas fa-plus-circle"></i> Add Stock
+                            </button>
+                            {% endif %}
+                            <button class="btn-toggle" onclick="toggleBookStatus({{ book.id }}, this)">
+                                <i class="fas fa-{% if book.is_active %}eye-slash{% else %}eye{% endif %}"></i>
+                                {% if book.is_active %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                            <a href="{% url 'books:delete_book' book.id %}" class="btn-delete" onclick="return confirm('Delete this book? This action cannot be undone.')">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <i class="fas fa-book"></i>
+                    <h4>No books added yet</h4>
+                    <p>Start selling by adding your first book.</p>
+                    <a href="{% url 'books:sell_book' %}" class="add-book-btn" style="display: inline-flex; margin-top: 1rem;">
+                        <i class="fas fa-plus"></i> Add Your First Book
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab switching
+    function showTab(tab) {
+        const ordersTab = document.getElementById('ordersTab');
+        const booksTab = document.getElementById('booksTab');
+        const buttons = document.querySelectorAll('.tab-btn');
+        
+        if (tab === 'orders') {
+            ordersTab.classList.add('active');
+            booksTab.classList.remove('active');
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        } else {
+            booksTab.classList.add('active');
+            ordersTab.classList.remove('active');
+            buttons[1].classList.add('active');
+            buttons[0].classList.remove('active');
+        }
+    }
+
+    // Search books
+    const searchBook = document.getElementById('searchBook');
+    if (searchBook) {
+        searchBook.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const books = document.querySelectorAll('.book-card');
+            
+            books.forEach(book => {
+                const title = book.dataset.title;
+                const author = book.dataset.author;
+                
+                if (title.includes(searchTerm) || author.includes(searchTerm)) {
+                    book.style.display = 'block';
+                } else {
+                    book.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Search orders
+    const searchOrder = document.getElementById('searchOrder');
+    if (searchOrder) {
+        searchOrder.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.orders-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Get CSRF token
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Show toast notification
+    function showToast(message, isError = false) {
+        let toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #0a3d2e;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 12px;
+                z-index: 9999;
+                display: none;
+                align-items: center;
+                gap: 10px;
+                animation: slideIn 0.3s ease;
+                font-size: 0.85rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            document.body.appendChild(toast);
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        toast.style.backgroundColor = isError ? '#c62828' : '#0a3d2e';
+        toast.style.display = 'flex';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Update order status
+    function updateOrderStatus(orderId, selectElement) {
+        const newStatus = selectElement.value;
+        
+        // FIXED: Removed /api/ from URL
+        fetch(`/orders/update-order-status/${orderId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                const row = selectElement.closest('tr');
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.className = `status-badge status-${newStatus.toLowerCase()}`;
+                    let icon = '';
+                    switch(newStatus.toLowerCase()) {
+                        case 'pending': icon = '<i class="fas fa-clock"></i>'; break;
+                        case 'processing': icon = '<i class="fas fa-cog"></i>'; break;
+                        case 'shipped': icon = '<i class="fas fa-truck"></i>'; break;
+                        case 'delivered': icon = '<i class="fas fa-check-circle"></i>'; break;
+                        case 'cancelled': icon = '<i class="fas fa-ban"></i>'; break;
+                    }
+                    statusBadge.innerHTML = `${icon} ${newStatus}`;
+                }
+                selectElement.setAttribute('data-original-value', newStatus);
+            } else {
+                showToast(data.error || 'Error updating status', true);
+                selectElement.value = selectElement.getAttribute('data-original-value') || 'Pending';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error. Please try again.', true);
+            selectElement.value = selectElement.getAttribute('data-original-value') || 'Pending';
+        });
+    }
+
+    // Toggle book status (activate/deactivate) - FIXED URL
+    function toggleBookStatus(bookId, buttonElement) {
+        const originalText = buttonElement.innerHTML;
+        buttonElement.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
+        buttonElement.disabled = true;
+        
+        // FIXED: Using correct URL without /api/
+        const url = `/books/toggle-status/${bookId}/`;
+        console.log('Calling URL:', url); // Debug log
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showToast(data.error || 'Error updating status', true);
+                buttonElement.innerHTML = originalText;
+                buttonElement.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error. Please try again.', true);
+            buttonElement.innerHTML = originalText;
+            buttonElement.disabled = false;
+        });
+    }
+
+    // Quick add stock - FIXED URL
+    function quickAddStock(bookId, buttonElement) {
+        const newStock = prompt("Enter number of copies to add:", "1");
+        if (!newStock) return;
+        
+        const stockNum = parseInt(newStock);
+        if (isNaN(stockNum) || stockNum <= 0) {
+            showToast("Please enter a valid number", true);
+            return;
+        }
+        
+        const originalText = buttonElement.innerHTML;
+        buttonElement.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Updating...';
+        buttonElement.disabled = true;
+        
+        // FIXED: Using correct URL without /api/
+        fetch(`/books/update-stock/${bookId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ stock: stockNum })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showToast(data.error || 'Error updating stock', true);
+                buttonElement.innerHTML = originalText;
+                buttonElement.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Network error. Please try again.', true);
+            buttonElement.innerHTML = originalText;
+            buttonElement.disabled = false;
+        });
+    }
+
+    // Initialize status selects
+    document.querySelectorAll('.status-update').forEach(select => {
+        select.setAttribute('data-original-value', select.value);
+        select.addEventListener('change', function() {
+            updateOrderStatus(this.dataset.orderId, this);
+        });
+    });
+</script>
+
+{% endblock %}

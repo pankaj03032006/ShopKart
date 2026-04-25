@@ -1,0 +1,108 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .login-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);
+    }
+    
+    .login-card {
+        max-width: 450px;
+        width: 100%;
+        background: white;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        padding: 30px;
+        text-align: center;
+        color: white;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .card-body {
+        padding: 35px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    
+    .signup-link {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .signup-link a {
+        color: #0a3d2e;
+        text-decoration: none;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="card-header">
+            <h2>Customer Login</h2>
+            <p>Welcome back! Please login to your account</p>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #ffebee; color: #c62828;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+            
+            <div class="signup-link">
+                <p>Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up</a></p>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

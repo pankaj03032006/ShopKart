@@ -1,0 +1,393 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .track-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .track-header {
+        margin-bottom: 2rem;
+    }
+
+    .track-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Order Info Card */
+    .order-info-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+    }
+
+    .order-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .order-info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .order-info-icon {
+        width: 48px;
+        height: 48px;
+        background: #f8fafc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .order-info-icon i {
+        font-size: 1.2rem;
+        color: #0a3d2e;
+    }
+
+    .order-info-content h4 {
+        font-size: 0.75rem;
+        color: #5b6e7c;
+        margin-bottom: 0.25rem;
+    }
+
+    .order-info-content p {
+        font-weight: 600;
+        color: #1e2a32;
+    }
+
+    /* Status Timeline */
+    .timeline-container {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+    }
+
+    .timeline-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #1e2a32;
+    }
+
+    .timeline {
+        position: relative;
+        padding: 1rem 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .timeline-step {
+        position: relative;
+        padding-left: 60px;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-step:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-icon {
+        position: absolute;
+        left: 12px;
+        top: 0;
+        width: 28px;
+        height: 28px;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .timeline-icon i {
+        font-size: 0.7rem;
+        color: #94a3b8;
+    }
+
+    .timeline-step.completed .timeline-icon {
+        background: #0a3d2e;
+        border-color: #0a3d2e;
+    }
+
+    .timeline-step.completed .timeline-icon i {
+        color: white;
+    }
+
+    .timeline-step.active .timeline-icon {
+        background: #fb641b;
+        border-color: #fb641b;
+        box-shadow: 0 0 0 4px rgba(251, 100, 27, 0.2);
+    }
+
+    .timeline-step.active .timeline-icon i {
+        color: white;
+    }
+
+    .timeline-step.cancelled .timeline-icon {
+        background: #e74c3c;
+        border-color: #e74c3c;
+    }
+
+    .timeline-step.cancelled .timeline-icon i {
+        color: white;
+    }
+
+    .timeline-content {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .timeline-step.completed .timeline-content,
+    .timeline-step.active .timeline-content {
+        background: #f0fdf4;
+    }
+
+    .timeline-step.cancelled .timeline-content {
+        background: #ffebee;
+    }
+
+    .timeline-status {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .timeline-description {
+        font-size: 0.85rem;
+        color: #5b6e7c;
+    }
+
+    .timeline-date {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 0.5rem;
+    }
+
+    /* Book Details */
+    .book-details-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .book-image {
+        width: 100px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .book-details {
+        flex: 1;
+    }
+
+    .book-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .book-author {
+        font-size: 0.85rem;
+        color: #5b6e7c;
+        margin-bottom: 0.5rem;
+    }
+
+    .book-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0a3d2e;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-track {
+        background: #0a3d2e;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-track:hover {
+        background: #0c4d3a;
+    }
+
+    @media (max-width: 768px) {
+        .order-info-grid {
+            grid-template-columns: 1fr;
+        }
+        .timeline::before {
+            left: 16px;
+        }
+        .timeline-step {
+            padding-left: 50px;
+        }
+        .timeline-icon {
+            left: 4px;
+            width: 24px;
+            height: 24px;
+        }
+        .timeline-icon i {
+            font-size: 0.6rem;
+        }
+    }
+</style>
+
+<div class="track-container">
+    <div class="track-header">
+        <h2>
+            <i class="fas fa-map-pin"></i> 
+            Track Order #{{ order.id|stringformat:"08d" }}
+        </h2>
+    </div>
+
+    <!-- Order Info Card -->
+    <div class="order-info-card">
+        <div class="order-info-grid">
+            <div class="order-info-item">
+                <div class="order-info-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="order-info-content">
+                    <h4>ORDER DATE</h4>
+                    <p>{{ order.created_at|date:"d M Y, h:i A" }}</p>
+                </div>
+            </div>
+            <div class="order-info-item">
+                <div class="order-info-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="order-info-content">
+                    <h4>ESTIMATED DELIVERY</h4>
+                    <p>{{ order.estimated_delivery|date:"d M Y"|default:"7-10 business days" }}</p>
+                </div>
+            </div>
+            <div class="order-info-item">
+                <div class="order-info-icon">
+                    <i class="fas fa-barcode"></i>
+                </div>
+                <div class="order-info-content">
+                    <h4>TRACKING ID</h4>
+                    <p>{{ order.tracking_id|default:"Not assigned yet" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="timeline-container">
+        <div class="timeline-title">
+            <i class="fas fa-chart-line"></i>
+            Order Status Timeline
+        </div>
+        <div class="timeline">
+            {% for step in status_steps %}
+            <div class="timeline-step 
+                {% if forloop.counter0 < current_step %}completed
+                {% elif forloop.counter0 == current_step and order.status != 'Cancelled' %}active
+                {% elif order.status == 'Cancelled' %}cancelled
+                {% endif %}">
+                <div class="timeline-icon">
+                    <i class="fas {{ step.icon }}"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-status">{{ step.status }}</div>
+                    <div class="timeline-description">{{ step.description }}</div>
+                    {% if forloop.counter0 == current_step and order.status != 'Cancelled' %}
+                    <div class="timeline-date">Current Status</div>
+                    {% elif forloop.counter0 < current_step %}
+                    <div class="timeline-date">Completed</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if order.status == 'Cancelled' %}
+            <div class="timeline-step cancelled">
+                <div class="timeline-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-status">Order Cancelled</div>
+                    <div class="timeline-description">This order has been cancelled</div>
+                    <div class="timeline-date">{{ order.updated_at|date:"d M Y, h:i A" }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Book Details -->
+    <div class="book-details-card">
+        {% if order.book.image and order.book.image.url %}
+            <img src="{{ order.book.image.url }}" class="book-image" alt="{{ order.book.title }}">
+        {% else %}
+            <div style="width:100px; height:130px; background:#f1f5f9; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-book" style="font-size:2rem; color:#cbd5e1;"></i>
+            </div>
+        {% endif %}
+        <div class="book-details">
+            <div class="book-title">{{ order.book.title }}</div>
+            <div class="book-author">by {{ order.book.author }}</div>
+            <div class="book-price">₹{{ order.price }}</div>
+            <div class="action-buttons">
+                <a href="{% url 'my_orders' %}" class="btn-track">
+                    <i class="fas fa-arrow-left"></i> Back to Orders
+                </a>
+                {% if order.status == 'Delivered' %}
+                <a href="{% url 'books:add_review' order.book.id %}" class="btn-track" style="background: #fb641b;">
+                    <i class="fas fa-star"></i> Write a Review
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

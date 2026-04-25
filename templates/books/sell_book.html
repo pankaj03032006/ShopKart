@@ -1,0 +1,1293 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .sell-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated background */
+    .sell-container::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(10, 61, 46, 0.08);
+        border-radius: 50%;
+        top: -150px;
+        right: -150px;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .sell-container::after {
+        content: '';
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(10, 61, 46, 0.05);
+        border-radius: 50%;
+        bottom: -100px;
+        left: -100px;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    .sell-card {
+        max-width: 950px;
+        width: 100%;
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease;
+    }
+
+    .sell-card:hover {
+        transform: translateY(-5px);
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        padding: 35px;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: shimmer 10s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translate(-20%, -20%) rotate(0deg); }
+        100% { transform: translate(20%, 20%) rotate(360deg); }
+    }
+
+    .seller-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        position: relative;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); }
+    }
+
+    .seller-icon i {
+        font-size: 3rem;
+        color: #0a3d2e;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .card-header p {
+        margin: 8px 0 0;
+        opacity: 0.9;
+        font-size: 0.85rem;
+    }
+
+    .card-body {
+        padding: 40px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .card-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .card-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    .card-body::-webkit-scrollbar-thumb {
+        background: #0a3d2e;
+        border-radius: 10px;
+    }
+
+    .form-section {
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid #eef2f6;
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        border-color: #c8e6d9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a3d2e;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-section-title i {
+        font-size: 1.2rem;
+        color: #ffd700;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        flex: 1;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .form-group label i {
+        margin-right: 6px;
+        color: #0a3d2e;
+    }
+
+    .required-star {
+        color: #e74c3c;
+        margin-left: 3px;
+    }
+
+    .optional-badge {
+        font-size: 0.65rem;
+        background: #e2e8f0;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-left: 8px;
+        font-weight: normal;
+    }
+
+    /* Input Wrappers */
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-wrapper .input-icon {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8;
+        font-size: 1rem;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        padding-left: 44px;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        background: #fefefe;
+    }
+
+    textarea.form-control {
+        padding: 14px 16px;
+        padding-left: 44px;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    select.form-control {
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #0a3d2e;
+        box-shadow: 0 0 0 4px rgba(10, 61, 46, 0.1);
+        background: white;
+    }
+
+    .form-control:focus + .input-icon {
+        color: #0a3d2e;
+    }
+
+    /* Price Input with Currency Symbol */
+    .price-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .currency-symbol {
+        position: absolute;
+        left: 16px;
+        font-weight: 600;
+        color: #0a3d2e;
+        z-index: 1;
+        font-size: 1rem;
+    }
+
+    .price-input {
+        padding-left: 44px;
+    }
+
+    /* File Upload for Main Image */
+    .file-upload {
+        position: relative;
+        margin-top: 8px;
+    }
+
+    .file-upload-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .file-upload-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 20px;
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .file-upload-label:hover {
+        border-color: #0a3d2e;
+        background: #f0fdf4;
+    }
+
+    .file-upload-label i {
+        font-size: 1.8rem;
+        color: #0a3d2e;
+    }
+
+    .file-upload-label span {
+        color: #5b6e7c;
+        font-size: 0.85rem;
+    }
+
+    .file-name {
+        font-size: 0.75rem;
+        color: #5b6e7c;
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    /* Main Image Preview */
+    .image-preview {
+        margin-top: 15px;
+        text-align: center;
+        display: none;
+    }
+
+    .image-preview img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 5px;
+        background: white;
+    }
+
+    /* Multiple Images Section */
+    .extra-images-section {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eef2f6;
+    }
+
+    .extra-images-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .extra-images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .extra-image-preview {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8fafc;
+        aspect-ratio: 1;
+        border: 2px solid #eef2f6;
+        transition: all 0.2s;
+    }
+
+    .extra-image-preview:hover {
+        border-color: #0a3d2e;
+        transform: scale(1.02);
+    }
+
+    .extra-image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .remove-image-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(220, 38, 38, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.2s;
+        z-index: 10;
+    }
+
+    .remove-image-btn:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+
+    .add-more-btn {
+        background: #f0fdf4;
+        color: #0a3d2e;
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        border: none;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .add-more-btn:hover {
+        background: #e8f5e9;
+        transform: translateY(-1px);
+    }
+
+    .upload-progress {
+        display: none;
+        margin-top: 10px;
+        width: 100%;
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .upload-progress-bar {
+        width: 0%;
+        height: 100%;
+        background: #0a3d2e;
+        transition: width 0.3s;
+    }
+
+    .upload-status {
+        font-size: 0.7rem;
+        color: #5b6e7c;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    /* Info Alert */
+    .info-alert {
+        background: linear-gradient(135deg, #e3f2fd, #e1f5fe);
+        border-left: 4px solid #2196f3;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .info-alert i {
+        font-size: 1.2rem;
+        color: #2196f3;
+    }
+
+    .info-alert p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #5b6e7c;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, #0a3d2e, #0c4d3a);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-submit:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(10, 61, 46, 0.4);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Tips Section */
+    .tips-section {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 25px;
+        border: 1px solid #eef2f6;
+    }
+
+    .tips-section h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0a3d2e;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px;
+    }
+
+    .tips-list li {
+        font-size: 0.75rem;
+        color: #5b6e7c;
+        padding: 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tips-list li i {
+        color: #0a3d2e;
+        font-size: 0.7rem;
+    }
+
+    /* Back Link */
+    .back-link {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eef2f6;
+    }
+
+    .back-link a {
+        color: #0a3d2e;
+        text-decoration: none;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .back-link a:hover {
+        color: #ffd700;
+        gap: 10px;
+    }
+
+    /* Alert Messages */
+    .alert-message {
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.85rem;
+        animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-error {
+        background: rgba(220, 38, 38, 0.1);
+        color: #dc2626;
+        border-left: 4px solid #dc2626;
+    }
+
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+        border-left: 4px solid #16a34a;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+        border-left: 4px solid #2563eb;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        .card-body {
+            padding: 30px 25px;
+        }
+        .sell-card {
+            max-width: 95%;
+        }
+        .card-header h2 {
+            font-size: 1.5rem;
+        }
+        .seller-icon {
+            width: 60px;
+            height: 60px;
+        }
+        .seller-icon i {
+            font-size: 2rem;
+        }
+        .tips-list {
+            grid-template-columns: 1fr;
+        }
+        .extra-images-grid {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        }
+    }
+</style>
+
+<div class="sell-container">
+    <div class="sell-card">
+        <div class="card-header">
+            <div class="seller-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <h2>Sell Your Book</h2>
+            <p>Reach thousands of readers and earn money</p>
+        </div>
+
+        <div class="card-body">
+            <!-- Display Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-message alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" id="sellBookForm">
+                {% csrf_token %}
+
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Basic Information
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-heading"></i> Book Title
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-book input-icon"></i>
+                                <input type="text" 
+                                       name="title" 
+                                       id="title"
+                                       class="form-control" 
+                                       placeholder="Enter book title"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="author">
+                                <i class="fas fa-user-pen"></i> Author
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" 
+                                       name="author" 
+                                       id="author"
+                                       class="form-control" 
+                                       placeholder="Enter author name"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="isbn">
+                                <i class="fas fa-barcode"></i> ISBN Number
+                                <span class="optional-badge">Optional</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-barcode input-icon"></i>
+                                <input type="text" 
+                                       name="isbn" 
+                                       id="isbn"
+                                       class="form-control" 
+                                       placeholder="ISBN (optional)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="language">
+                                <i class="fas fa-language"></i> Language
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-language input-icon"></i>
+                                <select name="language" id="language" class="form-control">
+                                    <option value="English">English</option>
+                                    <option value="Hindi">Hindi</option>
+                                    <option value="Tamil">Tamil</option>
+                                    <option value="Telugu">Telugu</option>
+                                    <option value="Kannada">Kannada</option>
+                                    <option value="Malayalam">Malayalam</option>
+                                    <option value="Bengali">Bengali</option>
+                                    <option value="Marathi">Marathi</option>
+                                    <option value="Gujarati">Gujarati</option>
+                                    <option value="Punjabi">Punjabi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Stock Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-tags"></i>
+                        Pricing & Stock
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">
+                                <i class="fas fa-rupee-sign"></i> Selling Price
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="price-input-wrapper">
+                                <span class="currency-symbol">₹</span>
+                                <input type="number" 
+                                       name="price" 
+                                       id="price"
+                                       class="form-control price-input" 
+                                       placeholder="0.00"
+                                       step="0.01"
+                                       min="0"
+                                       required>
+                            </div>
+                            <small style="color: #5b6e7c; font-size: 0.7rem;">Your selling price (after discount)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mrp">
+                                <i class="fas fa-tag"></i> MRP (Original Price)
+                                <span class="optional-badge">Optional</span>
+                            </label>
+                            <div class="price-input-wrapper">
+                                <span class="currency-symbol">₹</span>
+                                <input type="number" 
+                                       name="mrp" 
+                                       id="mrp"
+                                       class="form-control price-input" 
+                                       placeholder="0.00"
+                                       step="0.01"
+                                       min="0">
+                            </div>
+                            <small style="color: #5b6e7c; font-size: 0.7rem;">Original price before discount</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stock">
+                                <i class="fas fa-boxes"></i> Stock Quantity
+                                <span class="required-star">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-cubes input-icon"></i>
+                                <input type="number" 
+                                       name="stock" 
+                                       id="stock"
+                                       class="form-control" 
+                                       placeholder="Number of copies available"
+                                       value="1"
+                                       min="0"
+                                       required>
+                            </div>
+                            <small style="color: #5b6e7c; font-size: 0.7rem;">How many copies of this book do you have?</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="low_stock_threshold">
+                                <i class="fas fa-bell"></i> Low Stock Alert
+                            </label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-bell input-icon"></i>
+                                <input type="number" 
+                                       name="low_stock_threshold" 
+                                       id="low_stock_threshold"
+                                       class="form-control" 
+                                       placeholder="Alert when stock below"
+                                       value="5"
+                                       min="1">
+                            </div>
+                            <small style="color: #5b6e7c; font-size: 0.7rem;">Get notified when stock falls below this number</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">
+                            <i class="fas fa-folder"></i> Category
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-folder input-icon"></i>
+                            <select name="category" id="category" class="form-control">
+                                <option value="">Select a category</option>
+                                <option value="Engineering">📘 Engineering</option>
+                                <option value="School Books">📚 School Books</option>
+                                <option value="Competitive Exams">📖 Competitive Exams</option>
+                                <option value="Fiction">🎭 Fiction</option>
+                                <option value="Non-Fiction">📕 Non-Fiction</option>
+                                <option value="Academic">🎓 Academic</option>
+                                <option value="Children's Books">🧸 Children's Books</option>
+                                <option value="Others">📌 Others</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-align-left"></i>
+                        Book Description
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-file-alt"></i> Description
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-file-alt input-icon" style="top: 18px;"></i>
+                            <textarea name="description" 
+                                      id="description"
+                                      class="form-control" 
+                                      rows="5"
+                                      placeholder="Describe your book - condition, edition, key features, table of contents, etc."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book Cover Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-image"></i>
+                        Book Images
+                    </div>
+
+                    <!-- Main Book Cover -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-cloud-upload-alt"></i> Main Book Cover
+                            <span class="required-star">*</span>
+                        </label>
+                        <div class="file-upload">
+                            <input type="file" 
+                                   name="image" 
+                                   id="imageUpload" 
+                                   class="file-upload-input" 
+                                   accept="image/*"
+                                   required>
+                            <div class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Click to upload main book cover</span>
+                            </div>
+                            <div class="file-name" id="fileName">No file chosen</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            <img id="previewImg" src="#" alt="Preview">
+                        </div>
+                        <small style="color: #5b6e7c; font-size: 0.7rem; display: block; margin-top: 8px;">
+                            <i class="fas fa-info-circle"></i> Accepted formats: JPG, PNG, JPEG. Max size: 5MB
+                        </small>
+                    </div>
+
+                    <!-- Multiple Additional Images -->
+                    <div class="extra-images-section">
+                        <div class="extra-images-label">
+                            <i class="fas fa-images"></i> Additional Images (Optional)
+                            <span style="font-size: 0.7rem; color: #5b6e7c;">Add more photos of your book</span>
+                        </div>
+                        
+                        <div class="extra-images-grid" id="extraImagesGrid">
+                            <!-- Preview images will appear here -->
+                        </div>
+                        
+                        <button type="button" class="add-more-btn" onclick="document.getElementById('extraImages').click()">
+                            <i class="fas fa-plus-circle"></i> Add More Images
+                        </button>
+                        <input type="file" id="extraImages" name="extra_images" accept="image/*" multiple style="display: none;" onchange="previewExtraImages(this)">
+                        
+                        <div class="upload-progress" id="uploadProgress">
+                            <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                        </div>
+                        <div class="upload-status" id="uploadStatus"></div>
+                    </div>
+                </div>
+
+                <!-- Hidden field for extra images data -->
+                <input type="hidden" name="extra_images_data" id="extraImagesData" value="">
+
+                <!-- Info Alert -->
+                <div class="info-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Your book will be listed immediately after submission. Make sure all details are correct!</p>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <i class="fas fa-upload"></i> List Book for Sale
+                </button>
+
+                <!-- Tips Section -->
+                <div class="tips-section">
+                    <h4>
+                        <i class="fas fa-lightbulb"></i>
+                        Tips for selling your book successfully
+                    </h4>
+                    <ul class="tips-list">
+                        <li><i class="fas fa-check-circle"></i> Use a clear, high-quality cover image</li>
+                        <li><i class="fas fa-check-circle"></i> Add multiple images showing different angles</li>
+                        <li><i class="fas fa-check-circle"></i> Set a competitive price based on book condition</li>
+                        <li><i class="fas fa-check-circle"></i> Write a detailed description highlighting key features</li>
+                        <li><i class="fas fa-check-circle"></i> Mention the edition, condition, and any highlights/marks</li>
+                        <li><i class="fas fa-check-circle"></i> Add relevant categories to reach the right audience</li>
+                        <li><i class="fas fa-check-circle"></i> Keep accurate stock counts to avoid order cancellations</li>
+                    </ul>
+                </div>
+
+                <div class="back-link">
+                    <a href="{% url 'accounts:seller_dashboard' %}">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let extraImagesFiles = [];
+
+    // Main image preview
+    const imageUpload = document.getElementById('imageUpload');
+    const fileName = document.getElementById('fileName');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+
+    if (imageUpload) {
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload an image file (JPEG, PNG, etc.)');
+                    this.value = '';
+                    fileName.textContent = 'No file chosen';
+                    imagePreview.style.display = 'none';
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    this.value = '';
+                    fileName.textContent = 'No file chosen';
+                    imagePreview.style.display = 'none';
+                    return;
+                }
+                
+                // Show file name
+                fileName.textContent = file.name;
+                
+                // Show image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = 'No file chosen';
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+
+    // Preview extra images
+    function previewExtraImages(input) {
+        const grid = document.getElementById('extraImagesGrid');
+        const files = Array.from(input.files);
+        
+        files.forEach((file, index) => {
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`Image ${file.name} is larger than 5MB`);
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert(`${file.name} is not an image file`);
+                return;
+            }
+            
+            const reader = new FileReader();
+            const previewId = `preview_${Date.now()}_${index}`;
+            
+            reader.onload = function(e) {
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'extra-image-preview';
+                previewDiv.setAttribute('data-temp', 'true');
+                previewDiv.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button type="button" class="remove-image-btn" onclick="removeTempImage(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                grid.appendChild(previewDiv);
+                
+                // Store file for later upload
+                extraImagesFiles.push(file);
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Clear the input to allow re-uploading same files
+        input.value = '';
+        
+        // Update hidden field
+        updateExtraImagesData();
+    }
+
+    // Remove temp image
+    function removeTempImage(button) {
+        const previewDiv = button.closest('.extra-image-preview');
+        const index = Array.from(previewDiv.parentNode.children).indexOf(previewDiv);
+        if (index !== -1 && index < extraImagesFiles.length) {
+            extraImagesFiles.splice(index, 1);
+        }
+        previewDiv.remove();
+        updateExtraImagesData();
+    }
+
+    // Update hidden field with extra images data
+    function updateExtraImagesData() {
+        // For now, we're storing files in memory
+        // They will be uploaded via AJAX or as part of form submission
+        console.log(`Total extra images: ${extraImagesFiles.length}`);
+    }
+
+    // Price validation
+    const priceInput = document.getElementById('price');
+    const mrpInput = document.getElementById('mrp');
+    
+    if (priceInput) {
+        priceInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 100000) this.value = 100000;
+        });
+    }
+    
+    if (mrpInput) {
+        mrpInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 100000) this.value = 100000;
+        });
+    }
+
+    // Stock validation
+    const stockInput = document.getElementById('stock');
+    if (stockInput) {
+        stockInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 10000) this.value = 10000;
+        });
+    }
+
+    // Form submission with extra images
+    const form = document.getElementById('sellBookForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+            const image = document.getElementById('imageUpload').files[0];
+
+            if (!title) {
+                alert('Please enter the book title');
+                document.getElementById('title').focus();
+                return false;
+            }
+
+            if (!author) {
+                alert('Please enter the author name');
+                document.getElementById('author').focus();
+                return false;
+            }
+
+            if (!price || price <= 0) {
+                alert('Please enter a valid price');
+                document.getElementById('price').focus();
+                return false;
+            }
+
+            if (!stock || stock < 0) {
+                alert('Please enter a valid stock quantity');
+                document.getElementById('stock').focus();
+                return false;
+            }
+
+            if (!image) {
+                alert('Please upload a book cover image');
+                return false;
+            }
+
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Listing Book...';
+            submitBtn.disabled = true;
+
+            // Create FormData and submit
+            const formData = new FormData(form);
+            
+            // Add extra images files
+            for (let i = 0; i < extraImagesFiles.length; i++) {
+                formData.append('extra_images', extraImagesFiles[i]);
+            }
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url || "{% url 'accounts:seller_dashboard' %}";
+                    }, 1500);
+                } else {
+                    showMessage(data.error, 'error');
+                    submitBtn.innerHTML = '<i class="fas fa-upload"></i> List Book for Sale';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+                submitBtn.innerHTML = '<i class="fas fa-upload"></i> List Book for Sale';
+                submitBtn.disabled = false;
+            }
+            
+            return false;
+        });
+    }
+
+    // Helper function to get CSRF token
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Helper function to show messages
+    function showMessage(message, type) {
+        const container = document.querySelector('.card-body');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert-message alert-${type}`;
+        alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+        container.insertBefore(alertDiv, container.firstChild);
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+
+    // Add focus effects
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            const wrapper = this.closest('.input-wrapper, .price-input-wrapper');
+            if (wrapper) {
+                const icon = wrapper.querySelector('.input-icon, .currency-symbol');
+                if (icon) icon.style.color = '#0a3d2e';
+            }
+        });
+        input.addEventListener('blur', function() {
+            const wrapper = this.closest('.input-wrapper, .price-input-wrapper');
+            if (wrapper) {
+                const icon = wrapper.querySelector('.input-icon, .currency-symbol');
+                if (icon && !this.value) icon.style.color = '#94a3b8';
+                else if (icon && this.value && wrapper.classList.contains('price-input-wrapper')) icon.style.color = '#0a3d2e';
+                else if (icon && !this.value) icon.style.color = '#94a3b8';
+            }
+        });
+    });
+</script>
+
+{% endblock %}

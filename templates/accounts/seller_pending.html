@@ -1,0 +1,60 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .pending-container {
+        max-width: 600px;
+        margin: 3rem auto;
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .pending-icon {
+        font-size: 4rem;
+        color: #ff9800;
+        margin-bottom: 1rem;
+    }
+    
+    .pending-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1e2a32;
+    }
+    
+    .pending-message {
+        color: #5b6e7c;
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-home {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #0a3d2e;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(10, 61, 46, 0.3);
+        color: white;
+    }
+</style>
+
+<div class="pending-container">
+    <div class="pending-icon">
+        <i class="fas fa-clock"></i>
+    </div>
+    <h1 class="pending-title">Account Pending Approval</h1>
+    <p class="pending-message">Your seller account is waiting for admin approval. You will be notified once approved.</p>
+    <a href="{% url 'home' %}" class="btn-home">
+        <i class="fas fa-home"></i> Go to Home
+    </a>
+</div>
+{% endblock %}
