@@ -1,5 +1,7 @@
 from pathlib import Path
 import os
+import dj_database_url
+import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-change-this-later'
@@ -57,24 +59,14 @@ WSGI_APPLICATION = 'bookstore.wsgi.application'
 # DATABASE
 import os
 
-if os.environ.get('RENDER'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'your_db',
-            'USER': 'your_user',
-            'PASSWORD': 'your_password',
-            'HOST': 'your_host',
-            'PORT': '5432',
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.parse(
+        os.environ.get('DATABASE_URL')
+    )
+}
+
+# OPTIONAL (better performance)
+DATABASES['default']['CONN_MAX_AGE'] = 600
 
 # PASSWORD VALIDATION
 AUTH_PASSWORD_VALIDATORS = [
