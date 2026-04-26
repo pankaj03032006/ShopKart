@@ -109,6 +109,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     BASE_DIR / "books/static",
 ]
+CSRF_TRUSTED_ORIGINS = ['https://shopkart-5.onrender.com']
 #User name admin@123
 #email pankaj03032006@gmail.com
 #password Pankaj@123
