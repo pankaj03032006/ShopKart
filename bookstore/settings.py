@@ -102,7 +102,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DEBUG = False
 
-ALLOWED_HOSTS = ['oldbookstore.onrender.com']
+ALLOWED_HOSTS = ['bookstore.onrender.com']
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
