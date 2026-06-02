@@ -281,3 +281,7 @@ def change_password(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
     
     return render(request, 'accounts/change_password.html')
+
+def seller_pending(request):
+    """View for sellers whose accounts are pending approval"""
+    return render(request, 'accounts/seller_pending.html')

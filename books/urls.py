@@ -61,4 +61,26 @@ urlpatterns = [
     path('books/reorder-images/', views.reorder_images, name='reorder_images'),
     path('toggle-status/<int:book_id>/', views.toggle_book_status, name='toggle_book_status'),
     path('update-stock/<int:book_id>/', views.update_book_stock, name='update_book_stock'),
+
+     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    
+    # User Management
+    path('admin/users/<int:user_id>/toggle-status/', views.admin_toggle_user_status, name='admin_toggle_user_status'),
+    path('admin/users/<int:user_id>/delete/', views.admin_delete_user, name='admin_delete_user'),
+    
+    # Book Management
+    path('admin/books/<int:book_id>/toggle-status/', views.admin_toggle_book_status, name='admin_toggle_book_status'),
+    path('admin/books/<int:book_id>/delete/', views.admin_delete_book, name='admin_delete_book'),
+    
+    # Order Management
+    path('admin/orders/<int:order_id>/update-status/', views.admin_update_order_status, name='admin_update_order_status'),
+    
+    # Seller Verification
+    path('admin/verify-seller/<int:verification_id>/', views.admin_verify_seller, name='admin_verify_seller'),
+    
+    # Reports
+    path('admin/reports/<int:report_id>/resolve/', views.admin_resolve_report, name='admin_resolve_report'),
+    
+    # Settings
+    path('admin/settings/update/', views.admin_update_settings, name='admin_update_settings'),
 ]

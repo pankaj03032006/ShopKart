@@ -434,6 +434,129 @@
         color: #fbbf24;
     }
 
+    /* Footer Styles */
+    .site-footer {
+        background: linear-gradient(135deg, #0a2a1f, #0a3d2e);
+        color: #e2e8f0;
+        margin-top: 3rem;
+        border-radius: 30px 30px 0 0;
+        overflow: hidden;
+    }
+
+    .footer-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 1.5rem;
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .footer-section h3 {
+        color: white;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .footer-section h3::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: #4caf50;
+        border-radius: 2px;
+    }
+
+    .footer-section p {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin-bottom: 0.5rem;
+        color: #cbd5e1;
+    }
+
+    .footer-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .footer-section ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-section ul li a {
+        color: #cbd5e1;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .footer-section ul li a:hover {
+        color: #4caf50;
+        transform: translateX(5px);
+    }
+
+    .social-links {
+        display: flex;
+        gap: 12px;
+        margin-top: 0.5rem;
+    }
+
+    .social-links a {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .social-links a:hover {
+        background: #4caf50;
+        transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .footer-bottom-links {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .footer-bottom-links a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .footer-bottom-links a:hover {
+        color: #4caf50;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .book-grid {
@@ -445,6 +568,30 @@
             align-items: stretch;
         }
         .filter-options {
+            justify-content: center;
+        }
+        
+        .footer-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 1.5rem;
+        }
+        
+        .footer-section h3::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .social-links {
+            justify-content: center;
+        }
+        
+        .footer-bottom {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .footer-bottom-links {
             justify-content: center;
         }
     }
@@ -630,6 +777,64 @@
         </form>
     </div>
 </div>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <div class="footer-content">
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h3><i class="fas fa-book-open"></i> BookStore</h3>
+                <p>Your one-stop destination for the best books at amazing prices.</p>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Read City</p>
+                <p><i class="fas fa-envelope"></i> support@bookstore.com</p>
+                <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/"><i class="fas fa-angle-right"></i> Home</a></li>
+                    <li><a href="/books/"><i class="fas fa-angle-right"></i> All Books</a></li>
+                    <li><a href="/bestsellers/"><i class="fas fa-angle-right"></i> Bestsellers</a></li>
+                    <li><a href="/new-arrivals/"><i class="fas fa-angle-right"></i> New Arrivals</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <ul>
+                    <li><a href="/faq/"><i class="fas fa-angle-right"></i> FAQ</a></li>
+                    <li><a href="/shipping/"><i class="fas fa-angle-right"></i> Shipping Info</a></li>
+                    <li><a href="/returns/"><i class="fas fa-angle-right"></i> Returns Policy</a></li>
+                    <li><a href="/contact/"><i class="fas fa-angle-right"></i> Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <p>Stay connected for updates and offers</p>
+                <div class="social-links">
+                    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <p style="margin-top: 1rem;">
+                    <i class="fas fa-credit-card"></i> Secure Payments
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div>&copy; 2024 BookStore. All rights reserved.</div>
+            <div class="footer-bottom-links">
+                <a href="/privacy/">Privacy Policy</a>
+                <a href="/terms/">Terms of Service</a>
+                <a href="/sitemap/">Sitemap</a>
+            </div>
+        </div>
+    </div>
+</footer>
 
 <script>
     let currentBookId = null;

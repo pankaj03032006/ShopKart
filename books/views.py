@@ -1104,3 +1104,217 @@ def update_book_stock(request, book_id):
             'success': False,
             'error': str(e)
         }, status=500)
+    
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.db.models import Sum, Count, Q
+from .models import User, Book, Report, SellerVerification, SystemSettings
+from orders.models import Order
+
+from datetime import datetime, timedelta
+
+@staff_member_required
+def admin_dashboard(request):
+    """Main admin dashboard view"""
+    context = {
+        # User Stats
+        'total_users': User.objects.count(),
+        'active_sellers': User.objects.filter(role='Seller', is_active=True).count(),
+        'active_buyers': User.objects.filter(role='Buyer', is_active=True).count(),
+        
+        # Book Stats
+        'total_books': Book.objects.filter(is_deleted=False).count(),
+        'reported_books': Book.objects.filter(is_reported=True).count(),
+        'pending_verifications': SellerVerification.objects.filter(status='pending').count(),
+        'pending_verifications_list': SellerVerification.objects.filter(status='pending').select_related('seller'),
+        
+        # Order Stats
+        'total_orders': Order.objects.count(),
+        'books_sold': Order.objects.filter(status='Delivered').aggregate(Sum('quantity'))['quantity__sum'] or 0,
+        'total_revenue': Order.objects.filter(status='Delivered').aggregate(Sum('price'))['price__sum'] or 0,
+        
+        # Orders list
+        'orders': Order.objects.select_related('user', 'book', 'book__seller').order_by('-created_at')[:100],
+        
+        # Books list
+        'books': Book.objects.filter(is_deleted=False).select_related('seller').order_by('-created_at'),
+        
+        # Users list
+        'users': User.objects.all().order_by('-date_joined'),
+        
+        # Reports list
+        'reports': Report.objects.filter(status='pending').select_related('reported_by').order_by('-created_at'),
+        
+        # System Settings
+        'settings': SystemSettings.load(),
+        
+        # Recent Activity (implement based on your activity logging)
+        'recent_activities': [],  # Add your activity model here
+        
+        # Completion Rate
+        'completion_rate': calculate_completion_rate(),
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+@staff_member_required
+def admin_toggle_user_status(request, user_id):
+    """Block or unblock a user"""
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=user_id)
+        action = request.POST.get('action')
+        
+        if action == 'block':
+            user.is_active = False
+            message = f'User {user.username} has been blocked'
+        elif action == 'unblock':
+            user.is_active = True
+            message = f'User {user.username} has been unblocked'
+        else:
+            return JsonResponse({'error': 'Invalid action'}, status=400)
+        
+        user.save()
+        return JsonResponse({'success': True, 'message': message})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_delete_user(request, user_id):
+    """Permanently delete a user"""
+    if request.method == 'DELETE':
+        user = get_object_or_404(User, id=user_id)
+        
+        # Don't allow deleting yourself
+        if user.id == request.user.id:
+            return JsonResponse({'error': 'Cannot delete your own account'}, status=400)
+        
+        username = user.username
+        user.delete()
+        return JsonResponse({'success': True, 'message': f'User {username} deleted'})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_toggle_book_status(request, book_id):
+    """Activate or deactivate a book"""
+    if request.method == 'POST':
+        book = get_object_or_404(Book, id=book_id)
+        action = request.POST.get('action')
+        
+        if action == 'activate':
+            book.is_active = True
+            message = f'Book "{book.title}" has been activated'
+        elif action == 'deactivate':
+            book.is_active = False
+            message = f'Book "{book.title}" has been deactivated'
+        else:
+            return JsonResponse({'error': 'Invalid action'}, status=400)
+        
+        book.save()
+        return JsonResponse({'success': True, 'message': message})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_delete_book(request, book_id):
+    """Permanently delete a book (soft delete with admin override)"""
+    if request.method == 'DELETE':
+        book = get_object_or_404(Book, id=book_id)
+        title = book.title
+        book.is_deleted = True  # Soft delete
+        book.is_active = False
+        book.save()
+        return JsonResponse({'success': True, 'message': f'Book "{title}" deleted'})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_update_order_status(request, order_id):
+    """Update order status from admin panel"""
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        new_status = request.POST.get('status')
+        
+        if new_status not in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']:
+            return JsonResponse({'error': 'Invalid status'}, status=400)
+        
+        order.status = new_status
+        order.save()
+        
+        return JsonResponse({'success': True, 'message': f'Order #{order_id} status updated to {new_status}'})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_verify_seller(request, verification_id):
+    """Approve or reject a seller verification request"""
+    if request.method == 'POST':
+        verification = get_object_or_404(SellerVerification, id=verification_id)
+        action = request.POST.get('action')
+        
+        if action == 'approve':
+            verification.status = 'approved'
+            verification.seller.is_verified = True
+            verification.seller.save()
+            message = f'Seller {verification.seller.username} has been verified'
+        elif action == 'reject':
+            verification.status = 'rejected'
+            message = f'Seller {verification.seller.username} verification rejected'
+        else:
+            return JsonResponse({'error': 'Invalid action'}, status=400)
+        
+        verification.save()
+        return JsonResponse({'success': True, 'message': message})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_resolve_report(request, report_id):
+    """Resolve a reported item"""
+    if request.method == 'POST':
+        report = get_object_or_404(Report, id=report_id)
+        action = request.POST.get('action')
+        
+        if action == 'dismiss':
+            report.status = 'dismissed'
+            message = 'Report dismissed'
+        elif action == 'remove':
+            report.status = 'resolved'
+            # Mark the reported item as inactive
+            if report.reported_book:
+                report.reported_book.is_active = False
+                report.reported_book.save()
+            message = 'Reported item has been removed'
+        else:
+            return JsonResponse({'error': 'Invalid action'}, status=400)
+        
+        report.save()
+        return JsonResponse({'success': True, 'message': message})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@staff_member_required
+def admin_update_settings(request):
+    """Update platform settings"""
+    if request.method == 'POST':
+        settings = SystemSettings.load()
+        
+        settings.commission_rate = float(request.POST.get('commission_rate', settings.commission_rate))
+        settings.low_stock_threshold = int(request.POST.get('low_stock_threshold', settings.low_stock_threshold))
+        settings.cancel_deadline = int(request.POST.get('cancel_deadline', settings.cancel_deadline))
+        settings.admin_email = request.POST.get('admin_email', settings.admin_email)
+        
+        settings.save()
+        return JsonResponse({'success': True, 'message': 'Settings updated successfully'})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+def calculate_completion_rate():
+    """Calculate order completion rate"""
+    total = Order.objects.count()
+    if total == 0:
+        return 100
+    
+    completed = Order.objects.filter(status='Delivered').count()
+    return round((completed / total) * 100, 1)

@@ -184,3 +184,201 @@ class BookImage(models.Model):
         if self.image:
             self.image.delete(save=False)
         super().delete(*args, **kwargs)
+
+
+# ============================================
+# ADD THESE MODELS AFTER BookImage CLASS
+# ============================================
+
+class SellerVerification(models.Model):
+    """Seller verification requests for becoming a verified seller"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    DOCUMENT_TYPES = [
+        ('aadhar', 'Aadhar Card'),
+        ('pan', 'PAN Card'),
+        ('license', 'Driving License'),
+        ('voter_id', 'Voter ID'),
+        ('other', 'Other ID Proof'),
+    ]
+    
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verification_requests')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES, default='aadhar')
+    document = models.FileField(upload_to='seller_verifications/', help_text="Upload ID proof document (PDF or Image)")
+    document_number = models.CharField(max_length=100, blank=True, null=True, help_text="ID document number")
+    additional_document = models.FileField(upload_to='seller_verifications/', blank=True, null=True, help_text="Additional proof if needed")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    admin_notes = models.TextField(blank=True, null=True, help_text="Internal notes for admin")
+    rejection_reason = models.TextField(blank=True, null=True, help_text="Reason for rejection (shown to seller)")
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_verifications')
+    
+    def __str__(self):
+        return f"Verification for {self.seller.username} - {self.status}"
+    
+    def approve(self, admin_user=None):
+        """Approve seller verification"""
+        from django.utils import timezone
+        self.status = 'approved'
+        self.reviewed_at = timezone.now()
+        if admin_user:
+            self.reviewed_by = admin_user
+        self.save()
+        
+        # Mark the seller as verified
+        self.seller.is_verified = True
+        self.seller.save()
+    
+    def reject(self, reason=None, admin_user=None):
+        """Reject seller verification with reason"""
+        from django.utils import timezone
+        self.status = 'rejected'
+        self.reviewed_at = timezone.now()
+        if reason:
+            self.rejection_reason = reason
+        if admin_user:
+            self.reviewed_by = admin_user
+        self.save()
+
+
+class Report(models.Model):
+    """Reports for inappropriate books or users"""
+    REPORT_TYPES = [
+        ('book', 'Inappropriate Book'),
+        ('user', 'Suspicious User'),
+        ('review', 'Offensive Review'),
+    ]
+    
+    REASON_CHOICES = [
+        ('spam', 'Spam or misleading'),
+        ('offensive', 'Offensive content'),
+        ('fake', 'Fake product'),
+        ('price', 'Wrong price'),
+        ('copyright', 'Copyright violation'),
+        ('other', 'Other reason'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('investigating', 'Under Investigation'),
+        ('dismissed', 'Dismissed'),
+        ('resolved', 'Resolved - Action Taken'),
+    ]
+    
+    ACTION_CHOICES = [
+        ('none', 'No action taken'),
+        ('warning', 'Warning issued'),
+        ('deactivated', 'Book/User deactivated'),
+        ('deleted', 'Content deleted'),
+        ('banned', 'User banned'),
+    ]
+    
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_made')
+    report_type = models.CharField(max_length=10, choices=REPORT_TYPES, default='book')
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES, default='other')
+    description = models.TextField(help_text="Please provide detailed description of the issue")
+    
+    # Reported item (depending on type)
+    reported_book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True, blank=True, related_name='reports')
+    reported_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='reports_received')
+    reported_review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, blank=True, related_name='reports')
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    action_taken = models.CharField(max_length=20, choices=ACTION_CHOICES, default='none')
+    admin_notes = models.TextField(blank=True, null=True, help_text="Internal notes about resolution")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(blank=True, null=True)
+    resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='resolved_reports')
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        if self.report_type == 'book' and self.reported_book:
+            return f"Report on book: {self.reported_book.title}"
+        elif self.report_type == 'user' and self.reported_user:
+            return f"Report on user: {self.reported_user.username}"
+        return f"Report #{self.id}"
+    
+    def resolve(self, admin_user, action='dismissed', notes=None):
+        """Resolve a report"""
+        from django.utils import timezone
+        self.status = 'resolved'
+        self.action_taken = action
+        self.resolved_at = timezone.now()
+        self.resolved_by = admin_user
+        if notes:
+            self.admin_notes = notes
+        self.save()
+        
+        # Take action based on resolution
+        if action == 'deactivated' and self.reported_book:
+            self.reported_book.is_active = False
+            self.reported_book.save()
+        elif action == 'banned' and self.reported_user:
+            self.reported_user.is_active = False
+            self.reported_user.save()
+
+
+class SystemSettings(models.Model):
+    """Global system settings and configuration"""
+    # General Settings
+    site_name = models.CharField(max_length=100, default='Old Book Store')
+    site_tagline = models.CharField(max_length=200, blank=True, null=True)
+    admin_email = models.EmailField(default='admin@example.com')
+    support_email = models.EmailField(default='support@example.com')
+    support_phone = models.CharField(max_length=20, blank=True, null=True)
+    
+    # Business Settings
+    commission_rate = models.FloatField(default=5.0, help_text="Commission percentage deducted from seller earnings")
+    delivery_charge = models.DecimalField(max_digits=10, decimal_places=2, default=40.00)
+    free_delivery_threshold = models.DecimalField(max_digits=10, decimal_places=2, default=499.00)
+    
+    # Stock Settings
+    low_stock_threshold = models.IntegerField(default=5, help_text="Alert when stock falls below this number")
+    out_of_stock_threshold = models.IntegerField(default=0, help_text="Mark as out of stock at this level")
+    
+    # Order Settings
+    cancel_deadline_hours = models.IntegerField(default=24, help_text="Hours after which order cannot be cancelled")
+    return_days = models.IntegerField(default=7, help_text="Days allowed for returns")
+    
+    # System Settings
+    maintenance_mode = models.BooleanField(default=False, help_text="Put site in maintenance mode")
+    enable_seller_verification = models.BooleanField(default=True, help_text="Require seller verification")
+    enable_reviews = models.BooleanField(default=True, help_text="Allow product reviews")
+    enable_wishlist = models.BooleanField(default=True, help_text="Enable wishlist feature")
+    
+    # Security
+    max_login_attempts = models.IntegerField(default=5)
+    session_timeout_minutes = models.IntegerField(default=30)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='settings_updates')
+    
+    def __str__(self):
+        return f"System Settings"
+    
+    @classmethod
+    def load(cls):
+        """Load or create default settings"""
+        settings, created = cls.objects.get_or_create(id=1)
+        return settings
+    
+    @classmethod
+    def get_commission_rate(cls):
+        """Get current commission rate"""
+        return cls.load().commission_rate
+    
+    def save(self, *args, **kwargs):
+        # Always update the updated_at timestamp
+        from django.utils import timezone
+        self.updated_at = timezone.now()
+        super().save(*args, **kwargs)

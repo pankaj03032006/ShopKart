@@ -1,0 +1,1129 @@
+{% extends 'books/base.html' %}
+
+{% block content %}
+<style>
+    .admin-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #eef2f6 100%);
+        min-height: 100vh;
+        padding: 2rem 1.5rem;
+    }
+
+    .admin-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Admin Header */
+    .admin-header {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .admin-title h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-title p {
+        opacity: 0.8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .admin-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        font-size: 0.9rem;
+    }
+
+    /* Stats Grid */
+    .admin-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .admin-stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .admin-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon-circle {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon-circle.blue { background: #e3f2fd; color: #1565c0; }
+    .stat-icon-circle.green { background: #e8f5e9; color: #2e7d32; }
+    .stat-icon-circle.orange { background: #fff3e0; color: #ef6c00; }
+    .stat-icon-circle.purple { background: #f3e5f5; color: #7b1fa2; }
+    .stat-icon-circle.red { background: #ffebee; color: #c62828; }
+    .stat-icon-circle.teal { background: #e0f2f1; color: #00695c; }
+
+    .stat-info h3 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1e2a32;
+    }
+
+    .stat-info p {
+        font-size: 0.85rem;
+        color: #5b6e7c;
+        margin-top: 0.25rem;
+    }
+
+    /* Navigation Tabs */
+    .admin-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 60px;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .admin-tab-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        background: transparent;
+        border-radius: 40px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: #5b6e7c;
+    }
+
+    .admin-tab-btn:hover {
+        background: #f1f5f9;
+        color: #1a1a2e;
+    }
+
+    .admin-tab-btn.active {
+        background: #1a1a2e;
+        color: white;
+    }
+
+    /* Tab Content */
+    .admin-tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .admin-tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .admin-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .search-input {
+        padding: 8px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        width: 250px;
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #1a1a2e;
+    }
+
+    /* Tables */
+    .data-table {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .data-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eef2f6;
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #1e2a32;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    /* Badges */
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .role-admin {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .role-seller {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .role-buyer {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .status-active { background: #e8f5e9; color: #2e7d32; }
+    .status-inactive { background: #ffebee; color: #c62828; }
+    .status-pending { background: #fff3e0; color: #ef6c00; }
+    .status-approved { background: #e8f5e9; color: #2e7d32; }
+    .status-rejected { background: #ffebee; color: #c62828; }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-icon {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-view { background: #e3f2fd; color: #1565c0; }
+    .btn-edit { background: #fff3e0; color: #ef6c00; }
+    .btn-delete { background: #ffebee; color: #c62828; }
+    .btn-block { background: #f3e5f5; color: #7b1fa2; }
+    .btn-approve { background: #e8f5e9; color: #2e7d32; }
+    .btn-reject { background: #ffebee; color: #c62828; }
+
+    .btn-icon:hover {
+        transform: translateY(-2px);
+        filter: brightness(0.95);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary {
+        background: #1a1a2e;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #1e2a32;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+        .admin-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .admin-tabs {
+            border-radius: 16px;
+            flex-direction: column;
+        }
+        .admin-tab-btn {
+            text-align: center;
+        }
+        .data-table {
+            font-size: 0.75rem;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 0.5rem;
+        }
+    }
+</style>
+
+<div class="admin-container">
+    <div class="admin-wrapper">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="admin-title">
+                <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+                <p><i class="fas fa-user-cog"></i> Welcome back, {{ request.user.username }} | Full system control</p>
+            </div>
+            <div>
+                <span class="admin-badge"><i class="fas fa-database"></i> System Administrator</span>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <div class="stat-icon-circle blue">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_users }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon-circle green">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_books }}</h3>
+                    <p>Total Books</p>
+                </div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon-circle orange">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_orders }}</h3>
+                    <p>Total Orders</p>
+                </div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon-circle purple">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>₹{{ total_revenue|floatformat:0 }}</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon-circle red">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ reported_books }}</h3>
+                    <p>Reported Books</p>
+                </div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon-circle teal">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ pending_verifications }}</h3>
+                    <p>Pending Verifications</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" onclick="showAdminTab('overview')">
+                <i class="fas fa-chart-line"></i> Overview
+            </button>
+            <button class="admin-tab-btn" onclick="showAdminTab('users')">
+                <i class="fas fa-users"></i> Users
+            </button>
+            <button class="admin-tab-btn" onclick="showAdminTab('books')">
+                <i class="fas fa-book"></i> Books
+            </button>
+            <button class="admin-tab-btn" onclick="showAdminTab('orders')">
+                <i class="fas fa-shopping-cart"></i> Orders
+            </button>
+            <button class="admin-tab-btn" onclick="showAdminTab('verifications')">
+                <i class="fas fa-check-double"></i> Verifications
+            </button>
+            <button class="admin-tab-btn" onclick="showAdminTab('reports')">
+                <i class="fas fa-flag"></i> Reports
+            </button>
+            <button class="admin-tab-btn" onclick="showAdminTab('settings')">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overviewTab" class="admin-tab-content active">
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-simple"></i> Platform Overview</h3>
+                </div>
+                <div class="stats-overview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="color: #5b6e7c;">Active Sellers</h4>
+                        <p style="font-size: 2rem; font-weight: 800;">{{ active_sellers }}</p>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="color: #5b6e7c;">Active Buyers</h4>
+                        <p style="font-size: 2rem; font-weight: 800;">{{ active_buyers }}</p>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="color: #5b6e7c;">Books Sold</h4>
+                        <p style="font-size: 2rem; font-weight: 800;">{{ books_sold }}</p>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <h4 style="color: #5b6e7c;">Completion Rate</h4>
+                        <p style="font-size: 2rem; font-weight: 800;">{{ completion_rate }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h3><i class="fas fa-chart-line"></i> Recent Activity</h3>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr><th>Time</th><th>User</th><th>Action</th><th>Details</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in recent_activities %}
+                            <tr>
+                                <td>{{ activity.timestamp|date:"d M H:i" }}</td>
+                                <td>{{ activity.user }}</td>
+                                <td>{{ activity.action }}</td>
+                                <td>{{ activity.details }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" style="text-align: center;">No recent activity</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Management Tab -->
+        <div id="usersTab" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-users"></i> All Users</h3>
+                    <input type="text" id="searchUser" class="search-input" placeholder="Search users...">
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            {% for user in users %}
+                            <tr>
+                                <td>#{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <span class="role-badge role-{{ user.role|lower }}">
+                                        <i class="fas fa-{% if user.role == 'Admin' %}crown{% elif user.role == 'Seller' %}store{% else %}user{% endif %}"></i>
+                                        {{ user.role }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{% if user.is_active %}active{% else %}inactive{% endif %}">
+                                        {% if user.is_active %}Active{% else %}Blocked{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ user.date_joined|date:"d M Y" }}</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon btn-view" onclick="viewUser({{ user.id }})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn-icon btn-edit" onclick="editUser({{ user.id }})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    {% if user.is_active %}
+                                    <button class="btn-icon btn-block" onclick="toggleUserStatus({{ user.id }}, 'block')">
+                                        <i class="fas fa-ban"></i> Block
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-icon btn-approve" onclick="toggleUserStatus({{ user.id }}, 'unblock')">
+                                        <i class="fas fa-check"></i> Unblock
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn-icon btn-delete" onclick="deleteUser({{ user.id }})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Management Tab -->
+        <div id="booksTab" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-book"></i> All Books</h3>
+                    <div style="display: flex; gap: 1rem;">
+                        <select id="bookFilter" class="search-input" style="width: auto;">
+                            <option value="all">All Books</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="reported">Reported</option>
+                        </select>
+                        <input type="text" id="searchBook" class="search-input" placeholder="Search books...">
+                    </div>
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Image</th><th>Title</th><th>Seller</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            {% for book in books %}
+                            <tr>
+                                <td>#{{ book.id }}</td>
+                                <td>
+                                    {% if book.image %}
+                                    <img src="{{ book.image.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
+                                    {% else %}
+                                    <i class="fas fa-book" style="font-size: 1.5rem; color: #cbd5e1;"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ book.title|truncatechars:30 }}</td>
+                                <td>{{ book.seller.username }}</td>
+                                <td>₹{{ book.price }}</td>
+                                <td>{{ book.stock }}</td>
+                                <td>
+                                    <span class="status-badge status-{% if book.is_active %}active{% else %}inactive{% endif %}">
+                                        {% if book.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                    {% if book.is_reported %}
+                                    <span class="status-badge status-pending">Reported</span>
+                                    {% endif %}
+                                </td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon btn-view" onclick="viewBook({{ book.id }})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn-icon btn-edit" onclick="editBook({{ book.id }})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    {% if book.is_active %}
+                                    <button class="btn-icon btn-block" onclick="toggleBookAdminStatus({{ book.id }}, 'deactivate')">
+                                        <i class="fas fa-eye-slash"></i> Deactivate
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-icon btn-approve" onclick="toggleBookAdminStatus({{ book.id }}, 'activate')">
+                                        <i class="fas fa-eye"></i> Activate
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn-icon btn-delete" onclick="deleteBookAdmin({{ book.id }})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="ordersTab" class="admin-tab-content">
+            <div class="admin-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-shopping-cart"></i> All Orders</h3>
+                    <input type="text" id="searchOrder" class="search-input" placeholder="Search orders...">
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr><th>Order ID</th><th>Customer</th><th>Seller</th><th>Book</th><th>Qty</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.user.username }}</td>
+                                <td>{{ order.book.seller.username }}</td>
+                                <td>{{ order.book.title|truncatechars:25 }}</td>
+                                <td>{{ order.quantity }}</td>
+                                <td>₹{{ order.price }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ order.status|lower }}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>{{ order.created_at|date:"d M Y" }}</td>
+                                <td class="action-buttons">
+                                    <select class="status-update" data-order-id="{{ order.id }}" style="padding: 5px 10px; border-radius: 8px;">
+                                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                        <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                        <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                        <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verifications Tab -->
+        <div id="verificationsTab" class="admin-tab-content">
+            <div class="admin-card">
+                <h3><i class="fas fa-check-double"></i> Pending Seller Verifications</h3>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr><th>Seller</th><th>Email</th><th>Documents</th><th>Submitted On</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for verification in pending_verifications_list %}
+                            <tr>
+                                <td>{{ verification.seller.username }}</td>
+                                <td>{{ verification.seller.email }}</td>
+                                <td>
+                                    <a href="{{ verification.document.url }}" target="_blank" class="btn-icon btn-view">
+                                        <i class="fas fa-file-pdf"></i> View
+                                    </a>
+                                </td>
+                                <td>{{ verification.submitted_at|date:"d M Y" }}</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon btn-approve" onclick="verifySeller({{ verification.id }}, 'approve')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn-icon btn-reject" onclick="verifySeller({{ verification.id }}, 'reject')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" style="text-align: center;">No pending verifications</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reportsTab" class="admin-tab-content">
+            <div class="admin-card">
+                <h3><i class="fas fa-flag"></i> Reported Books & Users</h3>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr><th>Type</th><th>Item</th><th>Reported By</th><th>Reason</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for report in reports %}
+                            <tr>
+                                <td>
+                                    <span class="role-badge {% if report.type == 'book' %}role-seller{% else %}role-admin{% endif %}">
+                                        {{ report.type|title }}
+                                    </span>
+                                </td>
+                                <td>{{ report.item_name }}</td>
+                                <td>{{ report.reported_by.username }}</td>
+                                <td>{{ report.reason|truncatechars:50 }}</td>
+                                <td>{{ report.created_at|date:"d M Y" }}</td>
+                                <td class="action-buttons">
+                                    <button class="btn-icon btn-view" onclick="viewReport({{ report.id }})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn-icon btn-approve" onclick="resolveReport({{ report.id }}, 'dismiss')">
+                                        <i class="fas fa-check"></i> Dismiss
+                                    </button>
+                                    <button class="btn-icon btn-delete" onclick="resolveReport({{ report.id }}, 'remove')">
+                                        <i class="fas fa-trash"></i> Remove Item
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="admin-tab-content">
+            <div class="admin-card">
+                <h3><i class="fas fa-sliders-h"></i> Platform Settings</h3>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-percent"></i> Commission Rate (%)</label>
+                        <input type="number" id="commissionRate" value="{{ settings.commission_rate }}" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> Low Stock Threshold</label>
+                        <input type="number" id="lowStockThreshold" value="{{ settings.low_stock_threshold }}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Order Cancellation Deadline (days)</label>
+                        <input type="number" id="cancelDeadline" value="{{ settings.cancel_deadline }}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Admin Email</label>
+                        <input type="email" id="adminEmail" value="{{ settings.admin_email }}">
+                    </div>
+                    <button type="submit" class="btn-primary">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User View Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>User Details</h3>
+            <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+        </div>
+        <div id="userDetails"></div>
+    </div>
+</div>
+
+<script>
+    // Get CSRF Token
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Show Toast Notification
+    function showToast(message, isError = false) {
+        let toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px;
+                background: #0a3d2e; color: white; padding: 12px 20px;
+                border-radius: 12px; z-index: 9999; display: none;
+                align-items: center; gap: 10px; font-size: 0.85rem;
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        toast.style.backgroundColor = isError ? '#c62828' : '#1a1a2e';
+        toast.style.display = 'flex';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // Tab Switching
+    function showAdminTab(tabName) {
+        const tabs = ['overview', 'users', 'books', 'orders', 'verifications', 'reports', 'settings'];
+        tabs.forEach(tab => {
+            document.getElementById(`${tab}Tab`).classList.remove('active');
+        });
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+        
+        const buttons = document.querySelectorAll('.admin-tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    // Search Users
+    document.getElementById('searchUser')?.addEventListener('keyup', function() {
+        const term = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#usersTableBody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(term) ? '' : 'none';
+        });
+    });
+
+    // Search Books
+    document.getElementById('searchBook')?.addEventListener('keyup', function() {
+        const term = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#booksTableBody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(term) ? '' : 'none';
+        });
+    });
+
+    // Filter Books
+    document.getElementById('bookFilter')?.addEventListener('change', function() {
+        const filter = this.value;
+        const rows = document.querySelectorAll('#booksTableBody tr');
+        rows.forEach(row => {
+            if (filter === 'all') {
+                row.style.display = '';
+            } else if (filter === 'active' && row.cells[6]?.textContent.includes('Active')) {
+                row.style.display = '';
+            } else if (filter === 'inactive' && row.cells[6]?.textContent.includes('Inactive')) {
+                row.style.display = '';
+            } else if (filter === 'reported' && row.cells[6]?.textContent.includes('Reported')) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Toggle User Status (Block/Unblock)
+    function toggleUserStatus(userId, action) {
+        if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+        
+        fetch(`/admin/users/${userId}/toggle-status/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    }
+
+    // Delete User
+    function deleteUser(userId) {
+        if (!confirm('Delete this user permanently? This cannot be undone.')) return;
+        
+        fetch(`/admin/users/${userId}/delete/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCSRFToken() }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('User deleted successfully');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    }
+
+    // Toggle Book Status (Admin)
+    function toggleBookAdminStatus(bookId, action) {
+        if (!confirm(`Are you sure you want to ${action} this book?`)) return;
+        
+        fetch(`/admin/books/${bookId}/toggle-status/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    }
+
+    // Delete Book (Admin)
+    function deleteBookAdmin(bookId) {
+        if (!confirm('Delete this book permanently? This will affect all orders.')) return;
+        
+        fetch(`/admin/books/${bookId}/delete/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCSRFToken() }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Book deleted successfully');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    }
+
+    // Update Order Status
+    document.querySelectorAll('.status-update').forEach(select => {
+        select.addEventListener('change', function() {
+            const orderId = this.dataset.orderId;
+            const newStatus = this.value;
+            
+            fetch(`/admin/orders/${orderId}/update-status/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Order status updated');
+                } else {
+                    showToast(data.error, true);
+                }
+            });
+        });
+    });
+
+    // Verify Seller
+    function verifySeller(verificationId, action) {
+        fetch(`/admin/verify-seller/${verificationId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Seller ${action}d successfully`);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    }
+
+    // Resolve Report
+    function resolveReport(reportId, action) {
+        fetch(`/admin/reports/${reportId}/resolve/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Report resolved');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    }
+
+    // Save Settings
+    document.getElementById('settingsForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const settings = {
+            commission_rate: document.getElementById('commissionRate').value,
+            low_stock_threshold: document.getElementById('lowStockThreshold').value,
+            cancel_deadline: document.getElementById('cancelDeadline').value,
+            admin_email: document.getElementById('adminEmail').value
+        };
+        
+        fetch('/admin/settings/update/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Settings saved successfully');
+            } else {
+                showToast(data.error, true);
+            }
+        });
+    });
+
+    // Modal functions
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+    function viewUser(userId) {
+        // Fetch user details and show in modal
+        document.getElementById('userModal').style.display = 'flex';
+    }
+    
+    function viewBook(bookId) {
+        // Fetch book details
+        showToast('View book feature - implement as needed');
+    }
+    
+    function editUser(userId) {
+        showToast('Edit user feature - implement as needed');
+    }
+    
+    function editBook(bookId) {
+        showToast('Edit book feature - implement as needed');
+    }
+    
+    function viewReport(reportId) {
+        showToast('View report feature - implement as needed');
+    }
+</script>
+{% endblock %}
