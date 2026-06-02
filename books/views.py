@@ -1042,29 +1042,29 @@ import json
 
 @login_required
 @require_http_methods(["POST"])
-def toggle_book_status(request, book_id):
-    """Toggle book active/inactive status"""
-    try:
-        book = Book.objects.get(id=book_id, seller=request.user)
-        book.is_active = not book.is_active
-        book.save()
+# def toggle_book_status(request, book_id):
+#     """Toggle book active/inactive status"""
+#     try:
+#         book = Book.objects.get(id=book_id, seller=request.user)
+#         book.is_active = not book.is_active
+#         book.save()
         
-        status = "activated" if book.is_active else "deactivated"
-        return JsonResponse({
-            'success': True,
-            'message': f'Book {status} successfully!',
-            'is_active': book.is_active
-        })
-    except Book.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'error': 'Book not found or you do not have permission to edit it.'
-        }, status=404)
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+#         status = "activated" if book.is_active else "deactivated"
+#         return JsonResponse({
+#             'success': True,
+#             'message': f'Book {status} successfully!',
+#             'is_active': book.is_active
+#         })
+#     except Book.DoesNotExist:
+#         return JsonResponse({
+#             'success': False,
+#             'error': 'Book not found or you do not have permission to edit it.'
+#         }, status=404)
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'error': str(e)
+#         }, status=500)
 
 @login_required
 @require_http_methods(["POST"])
@@ -1110,7 +1110,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Sum, Count, Q
-from .models import User, Book, Report, SellerVerification, SystemSettings
+from .models import  Book, Report, SellerVerification, SystemSettings
 from orders.models import Order
 
 from datetime import datetime, timedelta
