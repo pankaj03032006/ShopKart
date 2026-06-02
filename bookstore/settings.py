@@ -4,9 +4,10 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ======================
+# ==================================================
 # SECURITY
-# ======================
+# ==================================================
+
 SECRET_KEY = os.environ.get(
     "SECRET_KEY",
     "django-insecure-change-this-later"
@@ -14,11 +15,20 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
+ALLOWED_HOSTS = [
+    "shopkart-6-bg7g.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
-ALLOWED_HOSTS = ["shopkart-6-bg7g.onrender.com"]
-# ======================
+CSRF_TRUSTED_ORIGINS = [
+    "https://shopkart-6-bg7g.onrender.com",
+]
+
+# ==================================================
 # APPLICATIONS
-# ======================
+# ==================================================
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,14 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Cloudinary
+    'cloudinary',
+    'cloudinary_storage',
+
+    # Apps
     'accounts',
     'orders',
     'books.apps.BooksConfig',
 ]
 
-# ======================
+# ==================================================
 # MIDDLEWARE
-# ======================
+# ==================================================
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -49,14 +65,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'bookstore.urls'
 
-# ======================
+# ==================================================
 # TEMPLATES
-# ======================
+# ==================================================
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-      
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,40 +87,53 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bookstore.wsgi.application'
 
-# ======================
-# DATABASE (POSTGRES + SQLITE fallback)
-# ======================
+# ==================================================
+# DATABASE
+# ==================================================
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=os.environ.get("DATABASE_URL"),
         conn_max_age=600,
-        
+        ssl_require=True,
     )
 }
 
-# ======================
+# ==================================================
 # PASSWORD VALIDATION
-# ======================
+# ==================================================
+
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
-# ======================
+# ==================================================
 # INTERNATIONALIZATION
-# ======================
+# ==================================================
+
 LANGUAGE_CODE = 'en-in'
 TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 USE_TZ = True
 
-# ======================
+# ==================================================
 # STATIC FILES
-# ======================
+# ==================================================
+
 STATIC_URL = '/static/'
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
@@ -115,35 +144,62 @@ STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
 )
 
-# ======================
-# MEDIA FILES
-# ======================
+# ==================================================
+# CLOUDINARY MEDIA STORAGE
+# ==================================================
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = (
+    'cloudinary_storage.storage.MediaCloudinaryStorage'
+)
+
+# ==================================================
+# MEDIA
+# ==================================================
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# ======================
+# ==================================================
 # DEFAULT PRIMARY KEY
-# ======================
+# ==================================================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ======================
-# LOGIN SETTINGS
-# ======================
+# ==================================================
+# AUTH SETTINGS
+# ==================================================
+
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# ======================
+# ==================================================
 # RAZORPAY
-# ======================
+# ==================================================
+
 RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
 
-# ======================
-# SECURITY FOR PRODUCTION
-# ======================
+# ==================================================
+# PRODUCTION SECURITY
+# ==================================================
+
 if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_PROXY_SSL_HEADER = (
+        'HTTP_X_FORWARDED_PROTO',
+        'https'
+    )
+
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
     SECURE_SSL_REDIRECT = False
+
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
