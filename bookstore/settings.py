@@ -91,13 +91,21 @@ WSGI_APPLICATION = 'bookstore.wsgi.application'
 # DATABASE
 # ==================================================
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # ==================================================
 # PASSWORD VALIDATION
@@ -140,9 +148,14 @@ STATICFILES_DIRS = [
     BASE_DIR / 'books' / 'static',
 ]
 
-STATICFILES_STORAGE = (
-    'whitenoise.storage.CompressedManifestStaticFilesStorage'
-)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # ==================================================
 # CLOUDINARY MEDIA STORAGE
@@ -154,9 +167,7 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-DEFAULT_FILE_STORAGE = (
-    'cloudinary_storage.storage.MediaCloudinaryStorage'
-)
+
 
 # ==================================================
 # MEDIA
